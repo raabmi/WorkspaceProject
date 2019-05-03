@@ -1,3 +1,13 @@
+##################
+# Packages ######
+#################
+library(invgamma)
+
+########################
+## Functions ###########
+########################
+
+#Probabilty of being in interval j under component k
 pjk <- function(a, b, mu, sigma2){
   # a numeric value lower bound of a bin
   # b numeric value upper bound of a bin
@@ -8,6 +18,7 @@ pjk <- function(a, b, mu, sigma2){
            pnorm(a, mu, sqrt(sigma2)))
 }
 
+# Probabilty of being in interjal j under mixed distribution
 pj <- function(p0, pi, a, b, mu , sigma2){
   # p0 - numeric value probability of being in interval B0
   # a numeric value lower bound of a bin
@@ -31,9 +42,7 @@ pj <- function(p0, pi, a, b, mu , sigma2){
 
 
 #Loglikelihood
-
-
-loglik <- function(n0, p0, J, K, pi, pjk, njk){
+loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   # n0 - numeric value number of resistent observations
   # p0 - numeric value probability of being in interval B0
   # J -  numeric value Number of Bins
@@ -41,26 +50,59 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk){
   # pi - vector of mixing proportions
   # pjk - occurence probabilty of a jth bin in the kth density
   # njk - vector number of expected observation in jth bin under kth density
+  # mu - vector of mean of normals
+  # sigma2 - vector of variance of normals
   #OUTPUT
   #likelihood value (loglik)
   
-  # TODO 
+  # TODO term2 and 3
   term1 <- n0 * ln(p0)
+  term2 <- 0
+  term3 <- 0
   
-  #TODO Term2 and Term3
+  loglik_value <- term1 + term2 + term3
+  
+  return(loglik_value)
+}
 
+#Loglikelihood penalized
+loglik.pen <- function(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta){
+  # n0 - numeric value number of resistent observations
+  # p0 - numeric value probability of being in interval B0
+  # J -  numeric value Number of Bins
+  # K -  numeric value Number of components
+  # pi - vector of mixing proportions
+  # pjk - occurence probabilty of a jth bin in the kth density
+  # njk - vector number of expected observation in jth bin under kth density
+  # alpha - numeric value shape of inverse gamma distribution
+  # beta  - numeric value rate of inverse gamma distribution
+  #OUTPUT
+  #likelihood value penalized (loglik)
   
-  return(loglik)
+  
+  pen <- pinvgamma(sigma, alpha, beta)
+  loglikpen <- loglik(n0, p0, J, K, pi, pjk, njk, mu, sigma2) - pen
+  
+  return(loglikpen)
 }
 
 tau <- function(){
   
+  
 }
 
-pi <- function(){
+# Vector of mixing proportions
+pi <- function(N, n0, njk){
+  # N - numeric value number of all observations
+  # n0 - numeric value number of resistance observtions
+  # njk - dataframe (jxk) with expected values per bin and component
+  #OUTPUT
+  # numeric vector with pi for each component k
  
+  return(colSums(njk)/(N-n0))
 }
 
+#Optimize penalized Logliklihood with optim
 optim.loglik <- function(){
   # use function optim
   
@@ -68,6 +110,7 @@ optim.loglik <- function(){
   return(loglik)
 }
 
+# Calculate expected number of observations in bin j nd k
 njk <- function(nj, pi, mu, sigma2, a, b,  k){
   # nj - Observed number of observations in bin j
   # mu - vector of mean of normals
@@ -85,9 +128,12 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
    
    return(num / sum(denum))
   }
-  
-  
 }
+
+
+########################
+## EM - Algorithm ######
+########################
 em.gauss <- function(y, mu, sigma2, pi, espilon=0.000001){
   # y - data numeric vector with observation per bin, 
   # n0  - first value of y must be n0
