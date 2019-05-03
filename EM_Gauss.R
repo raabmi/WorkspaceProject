@@ -6,7 +6,7 @@ em.gauss <- function(){
   print("HALLO WORLD!!!")
 }
 
-x<- 5
+y<- 5
 
 
 test <- 100
