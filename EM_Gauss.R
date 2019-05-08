@@ -125,7 +125,6 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
    )
    
    num <- nj* pi[k]* pjk(a, b, mu[k], sigma2[k])
-   
    return(num / sum(denum))
   }
 }
@@ -153,11 +152,24 @@ em.gauss <- function(y, mu, sigma2, pi, espilon=0.000001){
   sigma2_est <- sigma2
   pi_est <- pi
   
+  # a = lower bound of bin , b= upper bound
+  ab_bin<- data.frame(y=y, a = 5:49, b= 6: 50)
+  
   for(i in 1:1000){
     #E- Step
-    
-    #Calculate Expected values in bin j
-    
+    #Calculate Expected values in bin j under distribution k
+    njk_exp <- matrix(0, nrow = 44, ncol= K)
+    for(j in 1:44){#do it for each bin (44)
+      mjk_exp[j,] <- sapply(1:K, FUN = function(k){
+        njk (nj = y[i], 
+             pi = pi, 
+             mu = mu_est, 
+             sigma2 = sigma2_est, 
+             a = ab_bin$a[j], 
+             b = ab_bin$b[j], 
+             k = k)
+      }) 
+    }
     
     
     #M - Step
@@ -175,3 +187,4 @@ em.gauss <- function(y, mu, sigma2, pi, espilon=0.000001){
   return(list(mu= mu_est, sigma2 =sigma2_est, loglik = loglik))
  
 }
+
