@@ -187,6 +187,9 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
   J <- length(y) # J number of Bins
   n0 <- y[1] # number of restistant observations
   N <- sum(y) # Total number of observations
+  loglik_prev <- 0 #Initialize previous loglik for first iteration
+  delta <- epsilon + 1 #Initialize to go at least one iteration in em_algorithm
+  
   
   mu_est <- mu
   sigma2_est <- sigma2
@@ -195,7 +198,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
   # a = lower bound of bin , b= upper bound
   ab_bin<- data.frame(y=y, a = 4:49, b= 5: 50)
   
-  for(i in 1:1000){
+  while(delta > epsilon){
     #E- Step
     #Calculate Expected values in bin j under distribution k
     njk_exp <- matrix(0, nrow = J, ncol= K)
@@ -245,6 +248,21 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
     
     mu_est <- est$par[1:K]
     sigma2_est <- est$par[-(1:K)]
+    
+    loglik_curr <- loglik(n0 = n0, 
+                          p0 = p0, 
+                          J = J, 
+                          K = K, 
+                          pi =pi_est, 
+                          pjk = pjk_exp, 
+                          njk = njk_exp, 
+                          mu = mu_est, 
+                          sigma2 = sigma2_est) 
+    
+    delta <- logik_curr - loglik_prev
+    
+    loglik_prev <- loglik_curr
+    
     
   }
   
