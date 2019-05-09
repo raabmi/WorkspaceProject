@@ -100,12 +100,16 @@ pi <- function(N, n0, njk){
   return(colSums(njk)/(N-n0))
 }
 
-#Optimize penalized Logliklihood with optim
-optim.loglik <- function(){
-  # use function optim
+#Function for Optimize penalized Logliklihood with optim
+optim.loglik.pen <- function(musigma2, n0, p0, J, K, pi, pjk, njk, alpha, beta){
+  # musigma, vector with length 2*k, first k = mu, last k= sigma2
   
+  mu <- musigma[1:K]
+  sigma2 <- musigma[-(1:K)]
   
-  return(loglik)
+  loglik.pen <- loglik.pen(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta)
+
+  return(loglik.pen)
 }
 
 # Calculate expected number of observations in bin j nd k
@@ -194,6 +198,21 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
       }) 
     }
     # Optimize Likelihood (Estimate sigma, mu with optim)
+    # Use as start values estimates from before
+    est <- optim(par = c(mu_est, sigma2_est), 
+          fn = optim.loglik.pen, 
+          n0 = n0, 
+          p0 = p0, 
+          J = J, 
+          K = K, 
+          pi = pi_est, 
+          pjk = pjk_exp, 
+          njk = pjk_exp, 
+          alpha= alpha, 
+          beta = beta)
+    
+    mu_est <- est$par[1:K]
+    sigma2_est <- est$par[-(1:K)]
     
   }
   

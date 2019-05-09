@@ -67,9 +67,21 @@ for(j in 1:5){#do it for each bin (44)
 }
 
 # Test optim
+test_fun <- function (mu, sigma, x1, y2, z3){
+  return(z*mu^2 - sigma + x+ y *z)
+}
+test <- function (xy, z){
+  x <- xy[1]
+  y <- xy[2]
+  return(x^2 - y +z)
+}
+optim(par = c(1, 2), fn = test,  z = 1)
 
-optim(par, fn, 
-      method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
-                 "Brent"),
+c(mu, sigma)
+optim(c(1), 
+      fn =test_fun,
+      method = 'Brent',
       lower = -Inf, upper = Inf,
-      control = list(), hessian = FALSE)
+      control = list(x1 = 1, y2= 2, z3 =3, sigma = 1))
+
+test_fun ( 2, 3, 1, 2, 3)
