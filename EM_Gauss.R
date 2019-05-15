@@ -83,7 +83,7 @@ loglik.pen <- function(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta){
   #likelihood value penalized (loglik)
   
   
-  pen <- sum(pinvgamma(sigma, alpha, beta))
+  pen <- sum(log(pinvgamma(sigma, alpha, beta)))
   loglikpen <- loglik(n0, p0, J, K, pi, pjk, njk, mu, sigma2) - pen
   
   return(loglikpen)
