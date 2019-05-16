@@ -137,7 +137,7 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 ########################
 ## EM - Algorithm ######
 ########################
-em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
+em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   
   # y - data numeric vector with observation per bin, 
   # n0  - first value of y must be n0
@@ -150,6 +150,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
   #OUTPUT
   # list(estimated mu, estimated sigma2, liklihood value)
   
+  
+  #GRUEN: Use stop instead warning
   if(class(y) != "numeric") warning("y is not a numeric vector")
   if(any(y<0)) warning("only positiv y values are allowed")
   
@@ -223,6 +225,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
                  njk = njk_exp[-1, ]) #njk has to be without n0
     
     # make a pjk matrix for likelihood
+    
+    #GRUEN: Calculate denom firstly
     pjk_exp <- matrix(0, nrow = J, ncol= K)
     for(j in 1:J){#do it for each bin (44)
       pjk_exp[j,] <- sapply(1:K, FUN = function(k){
@@ -234,6 +238,9 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
     }
     # Optimize Likelihood (Estimate sigma, mu with optim)
     # Use as start values estimates from before
+    
+    #GRUEN: Use optim for each K seperatly 
+    #--> 2 dimensional otimaziation problem
     est <- optim(par = c(mu_est, sigma2_est), 
           fn = optim.loglik.pen, 
           n0 = n0, 
@@ -249,6 +256,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, espilon=0.000001){
     mu_est <- est$par[1:K]
     sigma2_est <- est$par[-(1:K)]
     
+    # Check loglikelihood
     loglik_curr <- loglik(n0 = n0, 
                           p0 = p0, 
                           J = J, 

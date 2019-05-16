@@ -17,6 +17,9 @@ createCluster <- function(y,k){
   lowerBound <- 0
   upperBound <- groups
   
+  # GRUEN: Assign group with rep
+  # GRUEN: estimates for pi
+  # GRUEN: Deletes 0
   for(i in 1:k){
 
     yNew <- y %>% filter(y[,1] <= upperBound & lowerBound < y[,1])
