@@ -83,7 +83,7 @@ loglik.pen <- function(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta){
   #likelihood value penalized (loglik)
   
   
-  pen <- sum(log(pinvgamma(sigma, alpha, beta)))
+  pen <- sum(pinvgamma(sigma, alpha, beta, log.p = T))
   loglikpen <- loglik(n0, p0, J, K, pi, pjk, njk, mu, sigma2) - pen
   
   return(loglikpen)
@@ -226,7 +226,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     
     # make a pjk matrix for likelihood
     
-    #GRUEN: Calculate denom firstly
+    #GRUEN: Calculate denom of pjk firstly
+    # Do not recalculate each time
     pjk_exp <- matrix(0, nrow = J, ncol= K)
     for(j in 1:J){#do it for each bin (44)
       pjk_exp[j,] <- sapply(1:K, FUN = function(k){
