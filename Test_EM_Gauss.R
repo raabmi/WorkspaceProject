@@ -69,7 +69,8 @@ test <- function (xy, z){
   y <- xy[2]
   return(x^2 - y +z)
 }
-optim(par = c(1, 2), fn = test,  z = 1)
+xx <-optim(par = c(1, 2), fn = test,  z = 1)
+xx$par
 
 c(mu, sigma)
 optim(c(1), 

@@ -156,36 +156,36 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   
   
   #GRUEN: Use stop instead warning
-  if(class(y) != "numeric") warning("y is not a numeric vector")
-  if(any(y<0)) warning("only positiv y values are allowed")
+  if(class(y) != "numeric") stop("y is not a numeric vector")
+  if(any(y<0)) stop("only positiv y values are allowed")
   
-  if(class(mu) != "numeric") warning("mu is not a numeric vector")
-  if(any(mu<0)) warning("only positiv mu values are allowed")
+  if(class(mu) != "numeric") stop("mu is not a numeric vector")
+  if(any(mu<0)) stop("only positiv mu values are allowed")
   
-  if(class(sigma2) != "numeric") warning("sigma2 is not a numeric vector")
-  if(any(sigma2<0)) warning("only positiv sigma2 values are allowed")
+  if(class(sigma2) != "numeric") stop("sigma2 is not a numeric vector")
+  if(any(sigma2<0)) stop("only positiv sigma2 values are allowed")
   
-  if(class(pi) != "numeric") warning("pi is not a numeric vector")
-  if(any(pi<0)) warning("only positiv pi values are allowed")
+  if(class(pi) != "numeric") stop("pi is not a numeric vector")
+  if(any(pi<0)) stop("only positiv pi values are allowed")
   
   if(length(mu) != length(sigma2) || length(sigma2) != length(pi)){
-    warning("mu and sigma2 or sigma2 and pi have not the same length")
+    stop("mu and sigma2 or sigma2 and pi have not the same length")
   }
   
   if(length(y) <= length(mu)){
-    warning("y must be at least the same length as mu")
+    stop("y must be at least the same length as mu")
   } 
   
   if(class(alpha) != "numeric" || length(alpha) != 1 || any(alpha<0)){
-    warning("alpha is not a positiv numeric value")
+    stop("alpha is not a positiv numeric value")
   } 
    
   if(class(beta) != "numeric" || length(beta) != 1 || any(beta<0)){
-    warning("beta is not a positiv numeric value")
+    stop("beta is not a positiv numeric value")
   }
   
   if(class(epsilon) != "numeric" || length(epsilon) != 1 || any(epsilon<0)){
-    warning("epsilon is not a positiv numeric value")
+    stop("epsilon is not a positiv numeric value")
   }
   
   #Initialize
@@ -273,7 +273,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
           njk = pjk_exp, 
           alpha= alpha, 
           beta = beta)
-    
+    print(est)
     mu_est <- est$par[1:K]
     sigma2_est <- est$par[-(1:K)]
     
@@ -287,7 +287,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           njk = njk_exp, 
                           mu = mu_est, 
                           sigma2 = sigma2_est) 
-    
+    print(loglik_prev)
+    print(loglik_curr)
     delta <- abs(loglik_curr - loglik_prev)
     print(delta)
     loglik_prev <- loglik_curr
