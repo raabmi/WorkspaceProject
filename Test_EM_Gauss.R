@@ -2,13 +2,6 @@
 #####Test njk in E-Step #######
 ###############################
 
-for(j in 1:44){#do it for each bin
-  vapply(1:K,FUN = function(k){
-    njk (y[1], pi, mu_est, sigma2_est, a[1], b[1], x)
-  },
-  FUN.VALUE = 0) 
-}
-
 njk (nj = 24, pi = c(0.4, 0.2), 
      mu = c(1, 2), 
      sigma2 = c(5, 1), 
@@ -39,9 +32,10 @@ for(j in 1:5){#do it for each bin (44)
 }
 njk_exp
 
-pi(N = sum(y),
+pi1 <-pi(N = sum(y),
    n0 = y[1],
    njk = njk_exp[ -1, ])
+sum(pi1)
 
 colSums(njk_exp)
 
@@ -65,7 +59,7 @@ for(j in 1:5){#do it for each bin (44)
         sigma2 = sigma2_est[k])
   }) 
 }
-
+sum(pjk_exp)
 # Test optim
 test_fun <- function (mu, sigma, x1, y2, z3){
   return(z*mu^2 - sigma + x+ y *z)
@@ -85,3 +79,31 @@ optim(c(1),
       control = list(x1 = 1, y2= 2, z3 =3, sigma = 1))
 
 test_fun ( 2, 3, 1, 2, 3)
+
+
+# test ab table
+y <- rnorm(20)
+ab_bin<- data.frame(y=y, 
+                    a = (1:length(y))+ 4.5, 
+                    b= (1:length(y))+ 5.5)
+ab_bin$a[1] <- 0 #Set the first interval from 0 to 6
+ab_bin
+
+#test em_gauss
+y <- c(6, 3, 4,6,3,2,6,7,8,7,6,5)
+barplot(y)
+hist(y)
+em.gauss(y = y,
+         mu = c(1, 10),
+         sigma2 = c(1, 1),
+         pi = c(0.5, 0.5),
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.01)
+p0 <- pj(p0 = -1, 
+         pi = c(0.5, 0.5), 
+         a = 0, 
+         b = 6.5, 
+         mu = c(2, 9) , 
+         sigma2 = c(1,1), 
+         get.p0= TRUE)

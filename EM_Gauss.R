@@ -21,7 +21,7 @@ pjk <- function(a, b, mu, sigma2){
 }
 
 # Probabilty of being in interjal j under mixed distribution
-pj <- function(p0, pi, a, b, mu , sigma2){
+pj <- function(p0, pi, a, b, mu , sigma2, get.p0= FALSE){
   # p0 - numeric value probability of being in interval B0
   # a numeric value lower bound of a bin
   # b numeric value upper bound of a bin
@@ -29,7 +29,6 @@ pj <- function(p0, pi, a, b, mu , sigma2){
   # mu numeric vector mean of a normal
   # sigma2 numeric vector variance of a normal
   
-  correction.term <- 1/(1-p0)
   
   buffer <- NULL
   for (i in length(mu)){
@@ -38,7 +37,12 @@ pj <- function(p0, pi, a, b, mu , sigma2){
     
   }
   
-  return(1/correction.term * sum(buffer))
+  if(get.p0){
+    correction.term <- 1/(1-p0)
+    return(sum(buffer))
+  }else{
+    return(sum(buffer))
+  }
   
 }
 
@@ -58,7 +62,7 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   #likelihood value (loglik)
   
   # TODO term2 and 3
-  term1 <- n0 * ln(p0)
+  term1 <- n0 * log(p0)
   term2 <- sum(colSums(njk) * log(pi))
   term3 <- sum(njk * log(pjk)) #instead of sum sum
   
@@ -101,7 +105,7 @@ pi <- function(N, n0, njk){
 }
 
 #Function for Optimize penalized Logliklihood with optim
-optim.loglik.pen <- function(musigma2, n0, p0, J, K, pi, pjk, njk, alpha, beta){
+optim.loglik.pen <- function(musigma, n0, p0, J, K, pi, pjk, njk, alpha, beta){
   # musigma, vector with length 2*k, first k = mu, last k= sigma2
   
   mu <- musigma[1:K]
@@ -180,8 +184,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     warning("beta is not a positiv numeric value")
   }
   
-  if(class(espilon) != "numeric" || length(espilon) != 1 || any(espilon<0)){
-    warning("espilon is not a positiv numeric value")
+  if(class(epsilon) != "numeric" || length(epsilon) != 1 || any(epsilon<0)){
+    warning("epsilon is not a positiv numeric value")
   }
   
   #Initialize
@@ -197,8 +201,13 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   sigma2_est <- sigma2
   pi_est <- pi
   
+  n0 <- y[1]
+  
   # a = lower bound of bin , b= upper bound
-  ab_bin<- data.frame(y=y, a = 4:49, b= 5: 50)
+  ab_bin<- data.frame(y=y, 
+                      a = (1:length(y))+ 4.5, 
+                      b= (1:length(y))+ 5.5)
+  ab_bin$a[1] <- 0 #Set the first interval from 0 to 6
   
   while(delta > epsilon){
     #E- Step
@@ -223,7 +232,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     pi_est <- pi(N = N,
                  n0 = n0,
                  njk = njk_exp[-1, ]) #njk has to be without n0
-    
+   
     # make a pjk matrix for likelihood
     
     #GRUEN: Calculate denom of pjk firstly
@@ -242,8 +251,19 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     
     #GRUEN: Use optim for each K seperatly 
     #--> 2 dimensional otimaziation problem
-    est <- optim(par = c(mu_est, sigma2_est), 
-          fn = optim.loglik.pen, 
+    
+    p0 <- pj(p0 = -1, 
+             pi = pi_est, 
+             a = 0, 
+             b = 6.5, 
+             mu = mu_est , 
+             sigma2 = sigma2_est, 
+             get.p0= TRUE)
+    
+    musigma <- c(mu_est, sigma2_est)
+    est <- optim(par = musigma, 
+          fn = optim.loglik.pen,
+          method = 'Nelder-Mead',
           n0 = n0, 
           p0 = p0, 
           J = J, 
@@ -268,17 +288,16 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           mu = mu_est, 
                           sigma2 = sigma2_est) 
     
-    delta <- logik_curr - loglik_prev
-    
+    delta <- abs(loglik_curr - loglik_prev)
+    print(delta)
     loglik_prev <- loglik_curr
     
     
   }
   
-  return(list(mu= mu_est, sigma2 =sigma2_est, loglik = loglik))
+  return(list(mu= mu_est, sigma2 =sigma2_est, loglik = loglik_curr))
  
 }
-
 
 
 
