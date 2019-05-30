@@ -92,10 +92,10 @@ ab_bin
 
 #test em_gauss
 y <- c(6, 3, 4,6,3,2,6,7,8,7,6,5)
-barplot(y)
-hist(y)
+barplot(y, names.arg = 1:length(y))
+
 em.gauss(y = y,
-         mu = c(1, 10),
+         mu = c(4, 13),
          sigma2 = c(1, 1),
          pi = c(0.5, 0.5),
          alpha = 1,
