@@ -96,7 +96,7 @@ barplot(y, names.arg = 1:length(y))
 
 sink("sink-examp.txt", append = FALSE)
 em.gauss(y = y,
-         mu = c(3, 15),
+         mu = c(1, 15),
          sigma2 = c(1,  2),
          pi = c(1/2, 1/2),
          alpha = 1,
