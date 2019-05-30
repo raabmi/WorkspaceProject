@@ -91,16 +91,19 @@ ab_bin$a[1] <- 0 #Set the first interval from 0 to 6
 ab_bin
 
 #test em_gauss
-y <- c(6, 3, 4,6,3,2,6,7,8,7,6,5)
+y <- c(2, 4, 5,6,5,2,2, 1, 1, 2,  2, 1,6,7,8,7,6, 5, 2,1)
 barplot(y, names.arg = 1:length(y))
 
+sink("sink-examp.txt", append = FALSE)
 em.gauss(y = y,
-         mu = c(4, 13),
-         sigma2 = c(1, 1),
-         pi = c(0.5, 0.5),
+         mu = c(3, 15),
+         sigma2 = c(1,  2),
+         pi = c(1/2, 1/2),
          alpha = 1,
          beta = 3,
-         epsilon = 0.01)
+         epsilon = 0.0001)
+sink()
+
 p0 <- pj(p0 = -1, 
          pi = c(0.5, 0.5), 
          a = 0, 
@@ -108,3 +111,13 @@ p0 <- pj(p0 = -1,
          mu = c(2, 9) , 
          sigma2 = c(1,1), 
          get.p0= TRUE)
+
+
+sink(file = "em_log.log", append = T)
+1+2
+sink()
+
+sink("sink-examp.txt")
+i <- 1:10
+outer(i, i, "*")
+sink()
