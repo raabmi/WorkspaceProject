@@ -3,33 +3,33 @@ source('EM_Gauss.R')
 ###############################
 #####Test njk in E-Step #######
 ###############################
-njk (nj = 24, pi = c(0.4, 0.2), 
-     mu = c(1, 2), 
-     sigma2 = c(5, 1), 
+njk (nj = 24, pi = c(0.4, 0.2),
+     mu = c(1, 2),
+     sigma2 = c(5, 1),
      a = 2 , b = 3 , k = 1)
 
 sapply(1:3,FUN = function(k){
-  njk (nj = 10, 
-       pi = c(0.4, 0.4, 0.2), 
-       mu = c(5, 3, 2), 
-       sigma2 = c(5, 1, 4), 
-       a = 1, 
-       b = 2, 
+  njk (nj = 10,
+       pi = c(0.4, 0.4, 0.2),
+       mu = c(5, 3, 2),
+       sigma2 = c(5, 1, 4),
+       a = 1,
+       b = 2,
        k = k)
-}) 
+})
 
 y <- c(10, 5, 4, 3, 6)
 njk_exp <- matrix(0, nrow = 5, ncol= 3)
 for(j in 1:5){#do it for each bin (44)
   njk_exp[j,] <- sapply(1:3, FUN = function(k){
-    njk (nj = y[j], 
-         pi = c(0.4, 0.4, 0.2), 
-         mu = c(1, 4, 6), 
-         sigma2 = c(1, 2, 2), 
-         a = 2, 
-         b = 3, 
+    njk (nj = y[j],
+         pi = c(0.4, 0.4, 0.2),
+         mu = c(1, 4, 6),
+         sigma2 = c(1, 2, 2),
+         a = 2,
+         b = 3,
          k = k)
-  }) 
+  })
 }
 njk_exp
 
@@ -41,14 +41,14 @@ sum(pi1)
 colSums(njk_exp)
 
 ## Test pjk
-pjk(a = -10000, 
-    b= 2, 
-    mu = 2, 
+pjk(a = -10000,
+    b= 2,
+    mu = 2,
     sigma2 = 1) # should be 0.5
 
 #Test calculate pjk_exp
 y <- c(10, 5, 4, 3, 6)
-mu_est = c(1, 4, 6) 
+mu_est = c(1, 4, 6)
 sigma2_est = c(1, 2, 2)
 ab_bin<- data.frame(y=y, a = 4:8, b= 5: 9)
 pjk_exp <- matrix(0, nrow = 5, ncol= 3)
@@ -58,7 +58,7 @@ for(j in 1:5){#do it for each bin (44)
         b = ab_bin$b[j],
         mu = mu_est[k],
         sigma2 = sigma2_est[k])
-  }) 
+  })
 }
 sum(pjk_exp)
 # Test optim
@@ -74,7 +74,7 @@ xx <-optim(par = c(1, 2), fn = test,  z = 1)
 xx$par
 
 c(mu, sigma)
-optim(c(1), 
+optim(c(1),
       fn =test_fun,
       method = 'Brent',
       lower = -Inf, upper = Inf,
@@ -85,8 +85,8 @@ test_fun ( 2, 3, 1, 2, 3)
 
 # test ab table
 y <- rnorm(20)
-ab_bin<- data.frame(y=y, 
-                    a = (1:length(y))+ 4.5, 
+ab_bin<- data.frame(y=y,
+                    a = (1:length(y))+ 4.5,
                     b= (1:length(y))+ 5.5)
 ab_bin$a[1] <- 0 #Set the first interval from 0 to 6
 ab_bin
@@ -105,12 +105,12 @@ em.gauss(y = y,
          epsilon = 0.0001)
 sink()
 
-p0 <- pj(p0 = -1, 
-         pi = c(0.5, 0.5), 
-         a = 0, 
-         b = 6.5, 
-         mu = c(2, 9) , 
-         sigma2 = c(1,1), 
+p0 <- pj(p0 = -1,
+         pi = c(0.5, 0.5),
+         a = 0,
+         b = 6.5,
+         mu = c(2, 9) ,
+         sigma2 = c(1,1),
          get.p0= TRUE)
 
 
@@ -127,9 +127,10 @@ sink()
 #
 y <- c(2, 4, 5,6,5,2,2, 1, 1, 2,  2, 1,6,7,8,7,6, 5, 2,1)
 
+
 em.gauss(y = y,
-         mu = c(6, 16),
-         sigma2 = c(1,  2),
+         mu = c(8.36, 17.28),
+         sigma2 = c(1.67,  8.4),
          pi = c(1/2, 1/2),
          alpha = 1,
          beta = 3,
@@ -137,7 +138,26 @@ em.gauss(y = y,
 
 par(mfrow = c(1,1))
 barplot(y, names.arg = 1:length(y)+5)
-curve(0.34* dnorm(x, mean = 9, sd = sqrt(4.07))+ 0.66* dnorm(x, mean = 20, sd = sqrt(5.98)), 
-      from= 6, to = 25, add = F, ylab = 'density')
 
+y.data <- data.frame(name = 1:length(y)+5, y)
+hist(rep(y.data[,1],y.data[,2]),freq = F )
+curve(0.34* dnorm(x, mean = 9, sd = sqrt(4.07))+ 0.66* dnorm(x, mean = 20, sd = sqrt(5.98)),
+      from= 6, to = 25, add = T, ylab = 'density')
+
+class(zd.data)
+
+source("EM_gauss.R")
+y <- as.numeric(zd)
+em.gauss(y = y,
+         mu = c(20.87, 23.87),
+         sigma2 = c(0.95, 1.06),
+         pi = c(1/2, 1/2),
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.0001)
+
+y.data <- data.frame(name = 1:length(y)+5, y)
+hist(rep(y.data[,1],y.data[,2]),freq = F, breaks = length(y)  )
+curve(0.10* dnorm(x, mean = 9, sd = sqrt(21))+ 0.9* dnorm(x, mean = 21, sd = sqrt(6.3)),
+      from= 6, to = 30, add = T, ylab = 'density')
 
