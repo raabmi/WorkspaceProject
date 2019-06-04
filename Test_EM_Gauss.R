@@ -1,7 +1,8 @@
+source('EM_Gauss.R')
+
 ###############################
 #####Test njk in E-Step #######
 ###############################
-
 njk (nj = 24, pi = c(0.4, 0.2), 
      mu = c(1, 2), 
      sigma2 = c(5, 1), 
@@ -92,7 +93,7 @@ ab_bin
 
 #test em_gauss
 y <- c(2, 4, 5,6,5,2,2, 1, 1, 2,  2, 1,6,7,8,7,6, 5, 2,1)
-barplot(y, names.arg = 1:length(y))
+barplot(y, names.arg = 1:length(y)+6)
 
 sink("sink-examp.txt", append = FALSE)
 em.gauss(y = y,
@@ -121,3 +122,22 @@ sink("sink-examp.txt")
 i <- 1:10
 outer(i, i, "*")
 sink()
+
+
+#
+y <- c(2, 4, 5,6,5,2,2, 1, 1, 2,  2, 1,6,7,8,7,6, 5, 2,1)
+
+em.gauss(y = y,
+         mu = c(6, 16),
+         sigma2 = c(1,  2),
+         pi = c(1/2, 1/2),
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.0001)
+
+par(mfrow = c(1,1))
+barplot(y, names.arg = 1:length(y)+5)
+curve(0.34* dnorm(x, mean = 9, sd = sqrt(4.07))+ 0.66* dnorm(x, mean = 20, sd = sqrt(5.98)), 
+      from= 6, to = 25, add = F, ylab = 'density')
+
+

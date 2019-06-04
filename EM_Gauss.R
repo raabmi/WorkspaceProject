@@ -73,11 +73,7 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
 
   term3 <- sum(njk * log_pjk) #instead of sum sum
   
-  print("Term 1-3")
-  print(term1)
-  print(term2)
-  print(term3)
-  
+
   #Term 2
   loglik_value <- term1 + term2 + term3
   
@@ -122,9 +118,6 @@ optim.loglik.pen <- function(musigma, J, njk, ab_bin, alpha, beta){
   # njk vector length J
   mu <- musigma[1]
   sigma2 <- musigma[2]
-  print("musigma")
-  print(mu)
-  print(sigma2)
 
   pjk_exp <- numeric(J)
   for(j in 1:J){#do it for each bin (44)
@@ -134,18 +127,11 @@ optim.loglik.pen <- function(musigma, J, njk, ab_bin, alpha, beta){
           mu = mu,
           sigma2 = sigma2)
   }
- # pjk_exp[pjk_exp == 0] <- .Machine$double.xmin
-  print("pjk - optim loglik pen")
-  print(pjk_exp)
-  print(log(pjk_exp))
-  print(njk)
-  print(pinvgamma(sigma2, alpha, beta, log.p = T))
+
   log_pjk <- log(pjk_exp)
   log_pjk[log_pjk == -Inf]<- log(.Machine$double.xmin)
-  print(log_pjk)
-                 
+
   loglik.pen <-  sum(log_pjk* njk) + pinvgamma(sigma2, alpha, beta, log.p = T)
-  print(loglik.pen)
   return((-1)*loglik.pen)
 }
 
@@ -241,7 +227,6 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                       a = (1:length(y))+ 4.5, 
                       b= (1:length(y))+ 5.5)
   ab_bin$a[1] <- 0 #Set the first interval from 0 to 6
-  print(ab_bin)
   while(delta > epsilon){
     #E- Step
     #Calculate Expected values in bin j under distribution k
@@ -258,8 +243,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       }) 
     }
     
-    print("njk_exp - EStep")
-    print(njk_exp)
+
     
     #M - Step
     
@@ -268,9 +252,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                  n0 = n0,
                  njk = njk_exp[-1, ]) #njk has to be without n0
    
-    print("pi_est")
-    print(pi_est)
-    print(sum(pi_est)) #should be 1
+ #should be 1
     # make a pjk matrix for likelihood
     
     #GRUEN: Calculate denom of pjk firstly
@@ -285,8 +267,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       }) 
     }
     
-    print("pjk_exp before optim")
-    print(pjk_exp)
+ 
     # Optimize Likelihood (Estimate sigma, mu with optim)
     # Use as start values estimates from before
     
@@ -300,17 +281,10 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
              mu = mu_est , 
              sigma2 = sigma2_est, 
              get.p0= TRUE)
-    
-    print("p0")
-    print(p0)
+ 
     
     
     for(k in 1:K){
-      print("in For")
-      print("k = " ); print(k);
-      
-      print(mu_est)
-      print(sigma2_est)
       musigma <- c(mu_est[k], sigma2_est[k])
       
       est1 <- optim(par = musigma, 
@@ -327,38 +301,13 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       mu_est[k] <- est1$par[1]
       sigma2_est[k] <- est1$par[2]
       
-      print("est1")
-      print(k)
-      print(est1)
+  
     }
     
-    # est <- optim(par = musigma, 
-    #       fn = optim.loglik.pen,
-    #       method = 'Nelder-Mead',
-    #       n0 = n0, 
-    #       p0 = p0, 
-    #       J = J, 
-    #       K = K, 
-    #       pi = pi_est, 
-    #       pjk = pjk_exp, 
-    #       njk = pjk_exp, 
-    #       alpha= alpha, 
-    #       beta = beta)
 
-   # mu_est <- est$par[1:K]
-  #  sigma2_est <- est$par[-(1:K)]
     
     # Check loglikelihood
-    print("loglik parameters")
-    print(n0)
-    print(p0)
-    print(J)
-    print(K)
-    print(pi_est)
-    print(pjk_exp)
-    print(njk_exp)
-    print(mu_est)
-    print(sigma2_est)
+
     loglik_curr <- loglik(n0 = n0, 
                           p0 = p0, 
                           J = J, 
@@ -368,17 +317,14 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           njk = njk_exp, 
                           mu = mu_est, 
                           sigma2 = sigma2_est) 
-    print("logliks")
-    print(loglik_prev)
-    print(loglik_curr)
+
     delta <- abs(loglik_curr - loglik_prev)
-    print(delta)
+
     loglik_prev <- loglik_curr
     
     
   }
-  print(pi_est)
-  return(list(mu= mu_est, sigma2 =sigma2_est, loglik = loglik_curr))
+  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik_curr))
  
 }
 

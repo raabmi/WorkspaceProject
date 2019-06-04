@@ -11,7 +11,7 @@ install.packages("stringr")
 
 # DATA
   # EUCASTData Package
-    install.packages("Dropbox/Project SS2019/Implementierung/Daten/EUCASTData_2019.04.15.tar.gz", repos = NULL, type = "source")
+ #   install.packages("Dropbox/Project SS2019/Implementierung/Daten/EUCASTData_2019.04.15.tar.gz", repos = NULL, type = "source")
     library(EUCASTData)
   
   # Download Zone Data
@@ -26,10 +26,10 @@ install.packages("stringr")
 
 head(ZD)
 
-y <- ZD[2, 4:48]
-class(y)
+zd <- ZD[3, 4:48]
+zd.data <- data.frame(6:50, t(zd) )
 
-barplot(as.matrix(y)) 
+barplot(as.matrix(zd)) 
 
 head(ZD)
 
