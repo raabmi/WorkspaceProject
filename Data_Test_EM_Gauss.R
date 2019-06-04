@@ -1,38 +1,51 @@
-# Statistical Projects
+# Statistical Projects SS2019
 
-# Download Data
-# Function that compares BIC/AIC with different number of components and returns best results
+setwd("C:/Users/Nicole")
 
-setwd("C:/Users/Michaela")
-
-install.packages("rvest")
-install.packages("stringr")
+#install.packages("rvest")
+#install.packages("stringr")
 
 
 # DATA
   # EUCASTData Package
- #   install.packages("Dropbox/Project SS2019/Implementierung/Daten/EUCASTData_2019.04.15.tar.gz", repos = NULL, type = "source")
-    library(EUCASTData)
+      #install.packages("Dropbox/Project SS2019/Implementierung/Daten/EUCASTData_2019.04.15.tar.gz", repos = NULL, type = "source")
+      #library(EUCASTData)
   
   # Download Zone Data
-    scrapeBacteria(mic = FALSE, dir = "Dropbox/Project SS2019/Implementierung/Daten")
+    #scrapeBacteria(mic = FALSE, dir = "Dropbox/Project SS2019/Implementierung/Daten")
     
   # Laod Data
-    ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/ZD.csv", sep=";")
+    ZD <- read.csv("Dropbox/Project SS2019/Implementierung/Daten/ZD.csv", sep=";")
 
- 
-  
-  
-
+    
+# Summary
 head(ZD)
+str(ZD)
 
-zd <- ZD[3, 4:48]
-zd.data <- data.frame(6:50, t(zd) )
 
-barplot(as.matrix(zd)) 
+# EXAMPLE DATASETS
 
-head(ZD)
+  # EXAMPLE 1: Antimicrobial == "Ampicillin" & Bacterium == "Escherichia coli"
+  ZD1 <- subset(ZD, Antimicrobial == "Ampicillin" & Bacterium == "Escherichia coli",
+                grepl("^Z", colnames(ZD)))
+  example1 <- data.frame(ZD1 = as.integer(gsub("^Z", "", colnames(ZDs))),
+                        Freq = unname(unlist(ZDs)))
+  plot(Freq ~ ZD1, data = example1, type = "h")
 
-library(antibioticR)
+  # EXAMPLE 2: Antimicrobial == "Piperacillin" & Bacterium == "Escherichia coli"
+  ZD2 <- subset(ZD, Antimicrobial == "Piperacillin" & Bacterium == "Escherichia coli",
+                grepl("^Z", colnames(ZD)))
+  example2 <- data.frame(ZD = as.integer(gsub("^Z", "", colnames(ZD2))),
+                        Freq = unname(unlist(ZD2)))
+  plot(Freq ~ ZD, data = example2, type = "h")
+  
+  # EXAMPLE 3: Antimicrobial == "Mecillinam" & Bacterium == "Escherichia coli"
+  ZD3 <- subset(ZD, Antimicrobial == "Mecillinam" & Bacterium == "Escherichia coli",
+                grepl("^Z", colnames(ZD)))
+  example3 <- data.frame(ZD = as.integer(gsub("^Z", "", colnames(ZD3))),
+                        Freq = unname(unlist(ZD3)))
+  plot(Freq ~ ZD, data = example3, type = "h")
 
+
+# TESTS
 
