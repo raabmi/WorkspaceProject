@@ -28,8 +28,8 @@ str(ZD)
   # EXAMPLE 1: Antimicrobial == "Ampicillin" & Bacterium == "Escherichia coli"
   ZD1 <- subset(ZD, Antimicrobial == "Ampicillin" & Bacterium == "Escherichia coli",
                 grepl("^Z", colnames(ZD)))
-  example1 <- data.frame(ZD1 = as.integer(gsub("^Z", "", colnames(ZDs))),
-                        Freq = unname(unlist(ZDs)))
+  example1 <- data.frame(ZD1 = as.integer(gsub("^Z", "", colnames(ZD1))),
+                        Freq = unname(unlist(ZD1)))
   plot(Freq ~ ZD1, data = example1, type = "h")
 
   # EXAMPLE 2: Antimicrobial == "Piperacillin" & Bacterium == "Escherichia coli"
@@ -48,4 +48,13 @@ str(ZD)
 
 
 # TESTS
+e1Start <- createCluster(as.matrix(example2), 2)
+e1Start
+em.gauss(as.matrix(example2), 
+         mu = c(15, 25) , 
+         sigma2 = c(43, 2), 
+         pi = c(1/2, 1/2),          
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.0001)
 
