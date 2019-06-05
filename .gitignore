@@ -2,3 +2,5 @@
 .Rhistory
 /.RData
 .Rproj.user
+/emGauss/*.RData
+/emGauss/*.Rproj
