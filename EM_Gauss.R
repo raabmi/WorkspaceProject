@@ -63,7 +63,12 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
 
   #
   term1 <- n0 * log(p0)
-  term2 <- sum(colSums(njk) * log(pi))
+  
+  if(K == 1){
+    term2 <- sum(njk * log(pi))
+  }else{
+    term2 <- sum(colSums(njk) * log(pi))
+  }
 
   log_pjk <- log(pjk)
 
@@ -108,8 +113,11 @@ pi <- function(N, n0, njk){
   # njk - dataframe (jxk) with expected values per bin and component
   #OUTPUT
   # numeric vector with pi for each component k
-
-  return(colSums(njk)/(N-n0))
+  if(is.null(dim(njk))){
+    return(sum(njk)/(N-n0))
+  }else{
+    return(colSums(njk)/(N-n0))
+  }
 }
 
 #Function for Optimize penalized Logliklihood with optim
@@ -131,7 +139,7 @@ optim.loglik.pen <- function(musigma, J, njk, ab_bin, alpha, beta){
   log_pjk <- log(pjk_exp)
   log_pjk[log_pjk == -Inf]<- log(.Machine$double.xmin)
 
-  loglik.pen <-  sum(log_pjk* njk) + pinvgamma(sigma2, alpha, beta, log.p = T)
+  loglik.pen <-  sum(log_pjk* njk) + log(dinvgamma(sigma2, alpha, beta))
   return((-1)*loglik.pen)
 }
 
@@ -230,8 +238,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   ab_bin<- data.frame(y=y_org,
                       a = (1:length(y_org))+ 4.5,
                       b= (1:length(y_org))+ 5.5)
-  ab_bin$a[1] <- 0 #Set the first interval from 0 to 6
-  ab_bin[!is0, ]
+  ab_bin$a[1] <- 0 #Set the first interval from 0 to 6.5
+  ab_bin <- ab_bin[!is0, ]
 
   J <- length(y)
 
@@ -328,6 +336,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     delta <- abs(loglik_curr - loglik_prev)
 
     loglik_prev <- loglik_curr
+    
+ 
 
 
   }

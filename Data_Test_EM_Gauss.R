@@ -26,10 +26,7 @@ install.packages("stringr")
 
 head(ZD)
 
-zd <- ZD[3, 4:48]
-zd.data <- data.frame(6:50, t(zd) )
 
-barplot(as.matrix(zd)) 
 
 head(ZD)
 

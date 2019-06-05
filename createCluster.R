@@ -12,6 +12,7 @@ createCluster <- function(y,k, method = "quantile"){
   if(any(y<0)) warning("only positiv y values are allowed")
   
   # Delete 0 Observations
+  y <- y[-1, ]
   y <- y[y[,2] != 0, ]
   
   parameters <- data.frame(mu = c(1:k),sigma2 = c(1:k))
@@ -49,7 +50,6 @@ createCluster <- function(y,k, method = "quantile"){
     g <- rep(1:k, each= groups)
     
     df <- data.frame(d = y.splitted, group = g[1:length(y.splitted)] )
-  
     parameters[,1] <- aggregate(df$d, list(df$group), FUN = 'mean')$x
     parameters[,2] <- aggregate(df$d, list(df$group), FUN = 'var')$x
     
