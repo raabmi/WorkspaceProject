@@ -238,6 +238,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   ab_bin<- data.frame(y=y_org,
                       a = (1:length(y_org))+ 4.5,
                       b= (1:length(y_org))+ 5.5)
+
   ab_bin$a[1] <- 0 #Set the first interval from 0 to 6.5
   ab_bin <- ab_bin[!is0, ]
 
