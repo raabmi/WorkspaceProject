@@ -48,13 +48,37 @@ str(ZD)
 
 
 # TESTS
-e1Start <- createCluster(as.matrix(example2), 2)
+e1Start <- createCluster(as.matrix(example1), 1)
 e1Start
-em.gauss(as.matrix(example2), 
-         mu = c(15, 25) , 
-         sigma2 = c(43, 2), 
+em.gauss(as.matrix(example1$Freq), 
+         mu = c(15) , 
+         sigma2 = c(38), 
+         pi = c(1),          
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.0001) # PROBLEM: 1 component funkt nicht
+
+
+e2Start <- createCluster(as.matrix(example2), 2)
+e2Start
+em.gauss(y = as.matrix(example2$Freq), 
+         mu = as.vector(unlist(e2Start[1])) , 
+         sigma2 = as.vector(unlist(e2Start[2])), 
          pi = c(1/2, 1/2),          
          alpha = 1,
          beta = 3,
          epsilon = 0.0001)
+
+e2Start <- createCluster(as.matrix(example2), 3)
+e2Start
+em.gauss(y = as.matrix(example2$Freq), 
+         mu = as.vector(unlist(e2Start[1])) , 
+         sigma2 = as.vector(unlist(e2Start[2])), 
+         pi = c(1/3, 1/3, 1/3),          
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.0001)
+
+
+
 
