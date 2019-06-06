@@ -349,3 +349,62 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
 
 
 
+
+em.gauss.opti.groups <- function(y, mu, sigma2, pi, alpha, beta, method = "quantile", epsilon=0.000001){
+  
+  # y - data numeric vector with observation per bin,
+  # n0  - first value of y must be n0
+  # mu - vector of mean of normals
+  # sigma2- vector of variance of normals
+  # pi - vector of mixing proportions of normals
+  # alpha - numeric number alpha of inverse gauss
+  # beta - numeric number beta of inverse gauss
+  # epsilon - stopping criteria (change of likelihood)
+  # OUTPUT
+  # list(estimated mu, estimated sigma2, liklihood value)
+  # method quantiles and binbased
+  
+  
+  l <- list()
+  m <- matrix()
+  goodness <- list()
+  
+  for(i in 1:length(mu)){
+    
+    
+    m <- createCluster(y = y , k = i , method = method)
+    
+    l <- em.gauss(y=y, mu=m[,1], sigma2=m[,2], pi=pi, alpha=alpha, beta=beta, epsilon=epsilon)
+    
+    aic <- AIC.gauss(l[[1]][4],l[[1]][i])
+    bic <- BIC.gauss(l[[1]][4],l[[1]][i],length(y[,1]))
+    
+    l <- list(l,aic,bic)
+    goodness <- (goodness,l)
+    
+  }
+  return(goodness)
+  
+}
+
+AIC.gauss <- function(lik, par){
+  
+  #lik - numeric value describing the likelihood
+  #par - number of groups on the basis of normal distribution
+  
+  aic <- -2*lik+2*2*par 
+  
+  return(aic)
+}
+
+BIC.gauss <- function(lik, par, n){
+  
+  #lik - numeric value describing the likelihood
+  #par - number of groups on the basis of normal distribution
+  #n - number of observations
+  
+  bic <- -2*lik + 2*par * log(n)
+  
+  return(bic)
+}
+
