@@ -45,9 +45,28 @@ str(ZD)
   example3 <- data.frame(ZD = as.integer(gsub("^Z", "", colnames(ZD3))),
                         Freq = unname(unlist(ZD3)))
   plot(Freq ~ ZD, data = example3, type = "h")
+  
+  # EXAMPLE 4: Antimicrobial == "Amikacin" & Bacterium == "Acinetobacter spp"
+  ZD4 <- subset(ZD, Antimicrobial == "Amikacin" & Bacterium == "Acinetobacter spp",
+                grepl("^Z", colnames(ZD)))
+  example4 <- data.frame(ZD = as.integer(gsub("^Z", "", colnames(ZD4))),
+                         Freq = unname(unlist(ZD4)))
+  plot(Freq ~ ZD, data = example4, type = "h")
+  
 
 
 # TESTS
+e1Start <- createCluster(as.matrix(example4), 1)
+e1Start
+em.gauss(as.matrix(example4$Freq), 
+         mu = c(22) , 
+         sigma2 = c(16), 
+         pi = c(1),          
+         alpha = 1,
+         beta = 3,
+         epsilon = 0.0001) # PROBLEM: 1 component funkt nicht
+
+
 e1Start <- createCluster(as.matrix(example1), 1)
 e1Start
 em.gauss(as.matrix(example1$Freq), 
@@ -57,6 +76,7 @@ em.gauss(as.matrix(example1$Freq),
          alpha = 1,
          beta = 3,
          epsilon = 0.0001) # PROBLEM: 1 component funkt nicht
+
 
 
 e2Start <- createCluster(as.matrix(example2), 2)
@@ -78,6 +98,8 @@ em.gauss(y = as.matrix(example2$Freq),
          alpha = 1,
          beta = 3,
          epsilon = 0.0001)
+
+
 
 
 
