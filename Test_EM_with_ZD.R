@@ -10,22 +10,29 @@ source('EM_Gauss.R')
 ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/ZD.csv", sep=";")
 
 #Dataset 3 works, rest not..
-zd <- as.numeric(ZD[3, 4:48])
+#Testdata
+# 3 --> works with k= 1 & 2
+# 65  --> does not work with k=2, wrong result with k=1 (mu=14, sigma2= 50)
+# 855 --> works with k= 2 but strange result (pi = (0,1)) and distribution
+# 1091 --> work with k= 2 
+
+zd <- as.numeric(ZD[65, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 zd.data
 
 #View Data
 barplot(zd.data$nrObs, names.arg = zd.data$bin)
-hist(rep(zd.data$bin, zd.data$nrObs),freq = F)
+hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30)
 
 #Create Clusters
-k <- 3
+k <- 1
 start.musigma2 <- createCluster(as.matrix(zd.data), k, 
                                 method = 'quantile')
 start.musigma2
 
 #Do EM Algorithm
 y <- as.numeric(zd)
+sink("sink-examp.txt", append = FALSE)
 em.result <- em.gauss(y = y,
                       mu = start.musigma2$mu,
                       sigma2 = start.musigma2$sigma2,
@@ -33,7 +40,11 @@ em.result <- em.gauss(y = y,
                       alpha = 3,
                       beta = 1,
                       epsilon = 0.0001)
+sink()
 em.result
+
+
+sum(em.result$pi)
 
 #Plot Results
 plot.dens <- function(x, mu, sigma2, pi){
@@ -45,10 +56,11 @@ plot.dens <- function(x, mu, sigma2, pi){
   return(dens)
 }
 
-hist(rep(zd.data$bin, zd.data$nrObs),freq = F )
+hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30 )
 curve(plot.dens(x, 
                 em.result$mu, 
                 em.result$sigma2, 
                 em.result$pi),
-      from= 6, to = 30, add = T, ylab = 'density')
+      from= 6, to = 50, add = T, ylab = 'density')
+
 

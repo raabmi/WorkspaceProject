@@ -67,7 +67,9 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   if(K == 1){
     term2 <- sum(njk * log(pi))
   }else{
-    term2 <- sum(colSums(njk) * log(pi))
+    logpi <- log(pi)
+    logpi[logpi == -Inf] <- log(.Machine$double.xmin)
+    term2 <- sum(colSums(njk) * logpi)
   }
 
   log_pjk <- log(pjk)
@@ -75,9 +77,19 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   log_pjk <- apply(log_pjk, 2, function(x){
     ifelse(x == -Inf, log(.Machine$double.xmin), x)
   })
+  
 
   term3 <- sum(njk * log_pjk) #instead of sum sum
-
+  
+  print("Funktion loglik")
+  print(term1)
+  print(term2)
+  print(njk)
+  print(pi)
+  print(log(pi))
+  print(term3)
+  print(log_pjk)
+  
 
   #Term 2
   loglik_value <- term1 + term2 + term3
@@ -138,8 +150,23 @@ optim.loglik.pen <- function(musigma, J, njk, ab_bin, alpha, beta){
 
   log_pjk <- log(pjk_exp)
   log_pjk[log_pjk == -Inf]<- log(.Machine$double.xmin)
+  
+ # if(sigma2 < 0.01){
+#    sigma2 <- 0.01
+ # }
 
-  loglik.pen <-  sum(log_pjk* njk) + log(dinvgamma(sigma2, alpha, beta))
+  loglik.pen <-  sum(log_pjk* njk) - log(dinvgamma(sigma2, alpha, beta))
+  
+  print(pjk_exp)
+  print(log_pjk)
+  print(njk)
+  print(loglik.pen)
+  print(log(dinvgamma(sigma2, alpha, beta)))
+  print(sum(log_pjk* njk))
+  print("sigma")
+  print(sigma2)
+  print("mu")
+  print(mu)
   return((-1)*loglik.pen)
 }
 
@@ -336,7 +363,10 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           sigma2 = sigma2_est)
 
     delta <- abs(loglik_curr - loglik_prev)
-
+    print("Loglik Change")
+    print(delta)
+    print(loglik_curr)
+    print(loglik_prev)
     loglik_prev <- loglik_curr
     
  
