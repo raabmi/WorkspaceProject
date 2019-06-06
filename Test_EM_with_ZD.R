@@ -19,7 +19,7 @@ barplot(zd.data$nrObs, names.arg = zd.data$bin)
 hist(rep(zd.data$bin, zd.data$nrObs),freq = F)
 
 #Create Clusters
-k <- 2
+k <- 3
 start.musigma2 <- createCluster(as.matrix(zd.data), k, 
                                 method = 'quantile')
 start.musigma2
@@ -45,7 +45,7 @@ plot.dens <- function(x, mu, sigma2, pi){
   return(dens)
 }
 
-hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 50 )
+hist(rep(zd.data$bin, zd.data$nrObs),freq = F )
 curve(plot.dens(x, 
                 em.result$mu, 
                 em.result$sigma2, 

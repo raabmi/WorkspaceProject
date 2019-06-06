@@ -229,6 +229,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   pi_est <- pi
 
   n0 <- y[1]
+ # y[1] <- 0
 
   is0 <- (y == 0)
   y_org <- y
