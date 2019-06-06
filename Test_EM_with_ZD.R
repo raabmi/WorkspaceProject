@@ -16,7 +16,7 @@ ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/Z
 # 855 --> works with k= 2 but strange result (pi = (0,1)) and distribution
 # 1091 --> work with k= 2 
 
-zd <- as.numeric(ZD[65, 4:48])
+zd <- as.numeric(ZD[3, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 zd.data
 
@@ -25,7 +25,7 @@ barplot(zd.data$nrObs, names.arg = zd.data$bin)
 hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30)
 
 #Create Clusters
-k <- 1
+k <- 3
 start.musigma2 <- createCluster(as.matrix(zd.data), k, 
                                 method = 'quantile')
 start.musigma2
@@ -63,4 +63,16 @@ curve(plot.dens(x,
                 em.result$pi),
       from= 6, to = 50, add = T, ylab = 'density')
 
+
+#Find optimum
+sink("sink-examp.txt", append = FALSE)
+
+res <-em.gauss.opti.groups(y = y, 
+                     k = 3, 
+                     alpha = 3, 
+                     beta= 1, 
+                     method = "quantile", 
+                     epsilon=0.0001)
+sink()
+res
 

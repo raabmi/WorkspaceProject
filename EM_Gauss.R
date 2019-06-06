@@ -380,13 +380,9 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
 
 
 
-em.gauss.opti.groups <- function(y, mu, sigma2, pi, alpha, beta, method = "quantile", epsilon=0.000001){
+em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon=0.000001){
   
   # y - data numeric vector with observation per bin,
-  # n0  - first value of y must be n0
-  # mu - vector of mean of normals
-  # sigma2- vector of variance of normals
-  # pi - vector of mixing proportions of normals
   # alpha - numeric number alpha of inverse gauss
   # beta - numeric number beta of inverse gauss
   # epsilon - stopping criteria (change of likelihood)
@@ -395,26 +391,39 @@ em.gauss.opti.groups <- function(y, mu, sigma2, pi, alpha, beta, method = "quant
   # method quantiles and binbased
   
   
-  l <- list()
   m <- matrix()
   goodness <- list()
-  
-  for(i in 1:length(mu)){
+
+  aic.vec <- numeric(3)
+  bic.vec <- vector("numeric",length = k)
+
+  for(i in 1:k){
     
+    y.df <- data.frame(bin = 6:50, nrObs = y)
     
-    m <- createCluster(y = y , k = i , method = method)
+    m <- createCluster(y = y.df , k = i , method = method)
     
-    l <- em.gauss(y=y, mu=m[,1], sigma2=m[,2], pi=pi, alpha=alpha, beta=beta, epsilon=epsilon)
+     goodness[[i]]<- em.gauss(y=y, 
+                  mu=m[,1], 
+                  sigma2=m[,2], 
+                  pi= rep(1/i, i), 
+                  alpha=alpha, 
+                  beta=beta, 
+                  epsilon=epsilon)
     
-    aic <- AIC.gauss(l[[1]][4],l[[1]][i])
-    bic <- BIC.gauss(l[[1]][4],l[[1]][i],length(y[,1]))
-    
-    l <- list(l,aic,bic)
-    goodness <- (goodness,l)
-    
+     aic <- AIC.gauss(goodness[[i]]$loglik, i)
+     bic <- BIC.gauss(goodness[[i]]$loglik, i, sum(y))
+
+     aic.vec[i] <- aic
+     bic.vec[i] <- bic
+     
   }
-  return(goodness)
   
+  goodness[[k+1]] <- aic.vec
+  goodness[[k+2]] <- bic.vec
+  
+  return(goodness)
+
 }
 
 AIC.gauss <- function(lik, par){

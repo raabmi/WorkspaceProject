@@ -6,8 +6,8 @@ createCluster <- function(y,k, method = "quantile"){
   #k number of groups
   # method quantiles and binbased 
   
-  if(class(y) != "matrix") warning("y is not a matrix")
-  if(class(k) != "numeric") warning("k is not a numeric vector")
+ # if(class(y) != "matrix") warning("y is not a matrix")
+ # if(class(k) != "numeric") warning("k is not a numeric vector")
   if(any(k<0)) warning("only positiv x values are allowed") 
   if(any(y<0)) warning("only positiv y values are allowed")
   
