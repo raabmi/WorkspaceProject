@@ -155,18 +155,9 @@ optim.loglik.pen <- function(musigma, J, njk, ab_bin, alpha, beta){
 #    sigma2 <- 0.01
  # }
 
-  loglik.pen <-  sum(log_pjk* njk) - log(dinvgamma(sigma2, alpha, beta))
+ # loglik.pen <-  sum(log_pjk* njk) - log(dinvgamma(sigma2, alpha, beta))
+  loglik.pen <-  sum(log_pjk* njk) + dinvgamma(sigma2, alpha, beta, log = TRUE)
   
-  print(pjk_exp)
-  print(log_pjk)
-  print(njk)
-  print(loglik.pen)
-  print(log(dinvgamma(sigma2, alpha, beta)))
-  print(sum(log_pjk* njk))
-  print("sigma")
-  print(sigma2)
-  print("mu")
-  print(mu)
   return((-1)*loglik.pen)
 }
 
@@ -334,7 +325,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       est1 <- optim(par = musigma,
                     fn = optim.loglik.pen,
                     method="L-BFGS-B",
-                    lower=c(0,0),
+                    lower= c(-Inf, .Machine$double.eps),
                     J = J,
                     njk = njk_exp[, k],
                     ab_bin = ab_bin,
@@ -363,10 +354,6 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           sigma2 = sigma2_est)
 
     delta <- abs(loglik_curr - loglik_prev)
-    print("Loglik Change")
-    print(delta)
-    print(loglik_curr)
-    print(loglik_prev)
     loglik_prev <- loglik_curr
     
  
