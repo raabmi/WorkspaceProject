@@ -15,7 +15,7 @@ pjk <- function(a, b, mu, sigma2){
   # sigma2 numeric value variance of a normal
   #OUTPUT
   # number - Area unter the density
-
+  
   return(pnorm(b, mu, sqrt(sigma2)) -
            pnorm(a, mu, sqrt(sigma2)))
 }
@@ -29,19 +29,22 @@ pj <- function(p0, pi, a, b, mu , sigma2, get.p0= FALSE){
   # mu numeric vector mean of a normal
   # sigma2 numeric vector variance of a normal
 
-
+  print("Calc Buffer")
   buffer <- NULL
   for (i in length(mu)){
     buffer <- c(buffer,
                 pi[i]*pjk(a, b, mu[i], sigma2[i]))
+    print(pi[i])
+    print(pjk(a, b, mu[i], sigma2[i]))
 
   }
-
+  print("butter")
+  print(buffer)
   if(get.p0){
-    correction.term <- 1/(1-p0)
     return(sum(buffer))
   }else{
-    return(sum(buffer))
+    correction.term <- 1/(1-p0)
+    return(correction.term * sum(buffer))
   }
 
 }
@@ -81,14 +84,16 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
 
   term3 <- sum(njk * log_pjk) #instead of sum sum
   
-  print("Funktion loglik")
-  print(term1)
-  print(term2)
-  print(njk)
-  print(pi)
-  print(log(pi))
-  print(term3)
-  print(log_pjk)
+   print("Funktion loglik")
+   print(term1)
+  # print(n0)
+  # print(p0)
+   print(term2)
+  # print(njk)
+  # print(pi)
+  # print(log(pi))
+   print(term3)
+  # print(log_pjk)
   
 
   #Term 2
@@ -122,9 +127,10 @@ loglik.pen <- function(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta){
 pi <- function(N, n0, njk){
   # N - numeric value number of all observations
   # n0 - numeric value number of resistance observtions
-  # njk - dataframe (jxk) with expected values per bin and component
+  # njk - dataframe ((j-1)xk) with expected values per bin and component
   #OUTPUT
   # numeric vector with pi for each component k
+  
   if(is.null(dim(njk))){
     return(sum(njk)/(N-n0))
   }else{
@@ -156,7 +162,7 @@ optim.loglik.pen <- function(musigma, J, njk, ab_bin, alpha, beta){
  # }
 
  # loglik.pen <-  sum(log_pjk* njk) - log(dinvgamma(sigma2, alpha, beta))
-  loglik.pen <-  sum(log_pjk* njk) + dinvgamma(sigma2, alpha, beta, log = TRUE)
+  loglik.pen <-  sum(log_pjk[-1]* njk[-1]) + dinvgamma(sigma2, alpha, beta, log = TRUE)
   
   return((-1)*loglik.pen)
 }
@@ -178,6 +184,9 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 
     num <- nj* pi[k]* pjk(a, b, mu[k], sigma2[k])
   }
+  print("Calc NJk")
+  print(num)
+  print(denum)
   return(num / sum(denum))
 
 }
@@ -247,7 +256,6 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   pi_est <- pi
 
   n0 <- y[1]
- # y[1] <- 0
 
   is0 <- (y == 0)
   y_org <- y
@@ -278,6 +286,9 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
              k = k)
       })
     }
+    
+    print(njk_exp)
+  
 
 
 
@@ -306,10 +317,8 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
 
     # Optimize Likelihood (Estimate sigma, mu with optim)
     # Use as start values estimates from before
-
-    #GRUEN: Use optim for each K seperatly
-    #--> 2 dimensional otimaziation problem
-
+    print("pi_est")
+    print(pi_est)
     p0 <- pj(p0 = -1,
              pi = pi_est,
              a = 0,
@@ -317,7 +326,10 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
              mu = mu_est ,
              sigma2 = sigma2_est,
              get.p0= TRUE)
-
+    print(p0)
+    if(p0 == 0){
+      p0 <- .Machine$double.eps
+    }
 
     for(k in 1:K){
       musigma <- c(mu_est[k], sigma2_est[k])
@@ -325,7 +337,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       est1 <- optim(par = musigma,
                     fn = optim.loglik.pen,
                     method="L-BFGS-B",
-                    lower= c(-Inf, .Machine$double.eps),
+                    lower= c(-Inf, 0.1),
                     J = J,
                     njk = njk_exp[, k],
                     ab_bin = ab_bin,
@@ -352,10 +364,19 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           njk = njk_exp,
                           mu = mu_est,
                           sigma2 = sigma2_est)
-
-    delta <- abs(loglik_curr - loglik_prev)
+    print("Loglik")
+    print(loglik_prev)
+    print(loglik_curr)
+    
+    if(loglik_prev == -Inf & loglik_curr == -Inf){
+      delta <- 0
+    }else{
+      delta <- abs(loglik_curr - loglik_prev)
+    }
     loglik_prev <- loglik_curr
     
+  
+    print(delta)
  
 
 
@@ -418,7 +439,7 @@ AIC.gauss <- function(lik, par){
   #lik - numeric value describing the likelihood
   #par - number of groups on the basis of normal distribution
   
-  aic <- -2*lik+2*2*par 
+  aic <- -2*lik+2*par 
   
   return(aic)
 }

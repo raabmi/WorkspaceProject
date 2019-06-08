@@ -16,7 +16,7 @@ ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/Z
 # 855 --> works with k= 2 but strange result (pi = (0,1)) and distribution
 # 1091 --> work with k= 2 
 
-zd <- as.numeric(ZD[4, 4:48])
+zd <- as.numeric(ZD[3, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 zd.data
 
@@ -31,6 +31,7 @@ start.musigma2 <- createCluster(as.matrix(zd.data), k,
 start.musigma2
 
 #Do EM Algorithm
+source("EM_Gauss.R")
 y <- as.numeric(zd)
 sink("sink-examp.txt", append = FALSE)
 em.result <- em.gauss(y = y,
@@ -46,6 +47,8 @@ em.result
 
 sum(em.result$pi)
 
+#curve(dinvgamma(x, shape = 3, rate = 0.5), from = 0, to =5)
+#dinvgamma(.Machine$double.eps, shape = 3, rate = 0.5)
 #Plot Results
 plot.dens <- function(x, mu, sigma2, pi){
   dens <- 0
@@ -56,7 +59,7 @@ plot.dens <- function(x, mu, sigma2, pi){
   return(dens)
 }
 
-hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30 )
+hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 35)
 curve(plot.dens(x, 
                 em.result$mu, 
                 em.result$sigma2, 
@@ -65,14 +68,33 @@ curve(plot.dens(x,
 
 
 #Find optimum
+source("EM_Gauss.R")
+
+k <- 6
+y <- as.numeric(zd)
 sink("sink-examp.txt", append = FALSE)
 
 res <-em.gauss.opti.groups(y = y, 
-                     k = 3, 
+                     k = k, 
                      alpha = 3, 
                      beta= 1, 
                      method = "quantile", 
                      epsilon=0.0001)
 sink()
-res
 
+
+hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 35)
+for(i in 1: k){
+  em.result <- res[[i]]
+  
+  curve(plot.dens(x, 
+                  em.result$mu, 
+                  em.result$sigma2, 
+                  em.result$pi),
+        from= 6, to = 50, add = T, ylab = 'density',
+        col= i)
+  
+}
+legend('topleft', legend = 1:k, lty= 1, col= 1:k,
+       ncol = 2)
+res
