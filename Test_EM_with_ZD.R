@@ -25,7 +25,7 @@ barplot(zd.data$nrObs, names.arg = zd.data$bin)
 hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30)
 
 #Create Clusters
-k <- 3
+k <- 2
 start.musigma2 <- createCluster(as.matrix(zd.data), k, 
                                 method = 'quantile')
 start.musigma2
