@@ -16,7 +16,7 @@ ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/Z
 # 855 --> works with k= 2 but strange result (pi = (0,1)) and distribution
 # 1091 --> work with k= 2 
 
-zd <- as.numeric(ZD[3, 4:48])
+zd <- as.numeric(ZD[1091, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 zd.data
 
