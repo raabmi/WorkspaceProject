@@ -203,7 +203,7 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 ########################
 ## EM - Algorithm ######
 ########################
-em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
+em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001,ecoff.quantile=0.01){
 
   # y - data numeric vector with observation per bin,
   # n0  - first value of y must be n0
@@ -394,7 +394,9 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
 
 
   }
-  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik_curr))
+  ecoff <- ecoff(mu_est=mu_est, pi_est = pi_est, 
+                 sigma2_est = sigma2_est, quantile = ecoff.quantile)
+  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik_curr, ecoff=ecoff))
 
 }
 
@@ -468,3 +470,11 @@ BIC.gauss <- function(lik, par, n){
   return(bic)
 }
 
+
+ecoff <- function(mu_est, pi_est, sigma2_est,quantile=0.01) {
+  for(i in length(mu_est):1) {
+    val <- pi_est[i]
+    if(val > 0.3) break
+  }
+  return(qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
+}
