@@ -395,7 +395,7 @@ em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon
   # beta - numeric number beta of inverse gauss
   # epsilon - stopping criteria (change of likelihood)
   # OUTPUT
-  # list(estimated mu, estimated sigma2, liklihood value)
+  # list(estimated mu, estimated sigma2, likelihood value)
   # method quantiles and binbased
   
   
