@@ -16,8 +16,16 @@ pjk <- function(a, b, mu, sigma2){
   #OUTPUT
   # number - Area unter the density
   
-  return(pnorm(b, mu, sqrt(sigma2)) -
-           pnorm(a, mu, sqrt(sigma2)))
+    pjk_est <- pnorm(b, mu, sqrt(sigma2)) -
+      pnorm(a, mu, sqrt(sigma2))
+    
+    pjk_est <- ifelse(pjk_est == 0, 
+                      .Machine$double.eps,
+                      pjk_est)
+    
+    print("pjk_est korrected")
+    print(pjk_est)
+    return(pjk_est)
 }
 
 # Probabilty of being in interjal j under mixed distribution
@@ -271,7 +279,11 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
 
   J <- length(y)
 
-  while(delta > epsilon){
+ # while(delta > epsilon){
+  for(i in 1:10){
+    print("I:")
+    print(i)
+  
     #E- Step
     #Calculate Expected values in bin j under distribution k
     njk_exp <- matrix(0, nrow = J, ncol= K)
@@ -287,6 +299,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       })
     }
     
+    print("All NJK Matrix")
     print(njk_exp)
   
 
