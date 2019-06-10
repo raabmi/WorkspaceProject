@@ -76,18 +76,21 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   term1 <- n0 * log(p0)
   
   if(K == 1){
-    term2 <- sum(njk * log(pi))
+    term2 <- sum(njk * log(pi)) # should be 0
   }else{
     logpi <- log(pi)
-    logpi[logpi == -Inf] <- log(.Machine$double.xmin)
+    logpi[logpi == -Inf] <- log(.Machine$double.eps)
     term2 <- sum(colSums(njk) * logpi)
   }
 
   log_pjk <- log(pjk)
-
+  print("log_pjk vor apply:")
+  print(log(pjk))
   log_pjk <- apply(log_pjk, 2, function(x){
-    ifelse(x == -Inf, log(.Machine$double.xmin), x)
+    ifelse(x == -Inf, log(.Machine$double.eps), x)
   })
+  print("log_pjk nach apply:")
+  print(log(pjk))
   
 
   term3 <- sum(njk * log_pjk) #instead of sum sum
@@ -139,7 +142,8 @@ pi <- function(N, n0, njk){
   #OUTPUT
   # numeric vector with pi for each component k
   
-  if(is.null(dim(njk))){
+  if(is.null(dim(njk))){ # K = 1
+    print("bin Vector")
     return(sum(njk)/(N-n0))
   }else{
     return(colSums(njk)/(N-n0))
@@ -463,7 +467,7 @@ BIC.gauss <- function(lik, par, n){
   #par - number of groups on the basis of normal distribution
   #n - number of observations
   
-  bic <- -2*lik + 2*par * log(n)
+  bic <- -2*lik + 2* 2* par * log(n)
   
   return(bic)
 }
