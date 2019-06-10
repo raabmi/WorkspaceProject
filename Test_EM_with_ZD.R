@@ -7,16 +7,17 @@ source('createCluster.R')
 source('EM_Gauss.R')
 
 #Load Zone Data
-ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/ZD.csv", sep=";")
+ZD <- read.csv("C:/Users/Nicole/Dropbox/Project SS2019/Implementierung/Daten/ZD.csv", sep=";")
 
 #Dataset 3 works, rest not..
 #Testdata
 # 3 --> works with k= 1 & 2
 # 65  --> does not work with k=2, wrong result with k=1 (mu=14, sigma2= 50)
 # 855 --> works with k= 2 but strange result (pi = (0,1)) and distribution
-# 1091 --> work with k= 2 
+# 1091 --> work with k= 2#
+# 702
 
-zd <- as.numeric(ZD[1091, 4:48])
+zd <- as.numeric(ZD[1087, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 zd.data
 
@@ -70,7 +71,7 @@ curve(plot.dens(x,
 #Find optimum
 source("EM_Gauss.R")
 
-k <- 10
+k <- 3
 y <- as.numeric(zd)
 sink("sink-examp.txt", append = FALSE)
 
@@ -99,3 +100,4 @@ legend('topleft', legend = 1:k, lty= 1, col= 1:k,
        ncol = 2)
 res
 plot(res[[12]])
+
