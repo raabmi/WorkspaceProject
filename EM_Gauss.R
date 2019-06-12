@@ -471,10 +471,12 @@ BIC.gauss <- function(lik, par, n){
 
 
 ecoff <- function(mu_est, pi_est, sigma2_est,quantile=0.01) {
+  val <- 0
   for(i in length(mu_est):1) {
-    val <- pi_est[i]
+    val <- val + pi_est[i]
     if(val > 0.3) break
   }
+  print(i)
   return(qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
 }
 
@@ -491,5 +493,5 @@ plot.fct <- function(y, mu_est, sigma2_est, pi_est, ecoff) {
                   sigma2_est, 
                   pi_est), from= 6, to = 50, add = T, ylab = 'density')
   abline(v=ecoff, col="red", lwd=3,lty=2)
-  legend("topleft",paste("CUTOFF = ", round(ecoff,2), " mm"), col="red", cex=1, lwd=2, lty=2)
+#  legend("topleft",paste("CUTOFF = ", round(ecoff,2), " mm"), col="red", cex=1, lwd=2, lty=2)
 }

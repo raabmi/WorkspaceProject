@@ -46,11 +46,22 @@ sink()
 em.result
 y
 
+#Plot Results
+ecoff.val <- ecoff(mu_est = em.result$mu, 
+                   pi_est = em.result$pi,
+                   sigma2_est = em.result$sigma2,
+                   quantile=0.01) 
+
+plot.fct(y = y,
+         mu_est = em.result$mu , 
+         sigma2_est = em.result$sigma2, 
+         pi_est = em.result$pi, 
+         ecoff = ecoff.val)
+  
 sum(em.result$pi)
 
 #curve(dinvgamma(x, shape = 3, rate = 0.5), from = 0, to =5)
 #dinvgamma(.Machine$double.eps, shape = 3, rate = 0.5)
-#Plot Results
 plot.dens <- function(x, mu, sigma2, pi){
   dens <- 0
   
