@@ -17,7 +17,7 @@ ZD <- read.csv("C:/Users/Nicole/Dropbox/Project SS2019/Implementierung/Daten/ZD.
 # 1091 --> work with k= 2#
 # 702
 
-zd <- as.numeric(ZD[855, 4:48])
+zd <- as.numeric(ZD[65, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 zd.data
 
@@ -26,7 +26,7 @@ barplot(zd.data$nrObs, names.arg = zd.data$bin)
 hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30)
 
 #Create Clusters
-k <- 4
+k <- 2
 start.musigma2 <- createCluster(as.matrix(zd.data), k, 
                                 method = 'quantile')
 start.musigma2
@@ -41,22 +41,18 @@ em.result <- em.gauss(y = y,
                       pi = rep(1/k, k),
                       alpha = 3,
                       beta = 1,
-                      epsilon = 0.0001)
+                      epsilon = 0.0001,
+                      max.iter = 650)
 sink()
 em.result
-y
+
 
 #Plot Results
-ecoff.val <- ecoff(mu_est = em.result$mu, 
-                   pi_est = em.result$pi,
-                   sigma2_est = em.result$sigma2,
-                   quantile=0.01) 
-
 plot.fct(y = y,
          mu_est = em.result$mu , 
          sigma2_est = em.result$sigma2, 
          pi_est = em.result$pi, 
-         ecoff = ecoff.val)
+         ecoff = em.result$ecoff)
   
 sum(em.result$pi)
 
@@ -82,7 +78,7 @@ curve(plot.dens(x,
 #Find optimum
 source("EM_Gauss.R")
 
-k <- 8
+k <- 5
 y <- as.numeric(zd)
 sink("sink-examp.txt", append = FALSE)
 
@@ -112,8 +108,8 @@ legend('topleft', legend = 1:k, lty= 1, col= 1:k,
 res
 
 #AIC
-plot(res[[k+1]], ylab = 'BIC')
-abline(v=which.min(res[[k+1]]), lty= 2, col=2)
+plot(res$AIC, ylab = 'AIC')
+abline(v=which.min(res$AIC), lty= 2, col=2)
 #BIC
-plot(res[[k+2]], ylab = 'BIC')
-abline(v=which.min(res[[k+2]]), lty= 2, col=2)
+plot(res$BIC, ylab = 'BIC')
+abline(v=which.min(res$BIC), lty= 2, col=2)

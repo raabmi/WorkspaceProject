@@ -203,7 +203,8 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 ########################
 ## EM - Algorithm ######
 ########################
-em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001,ecoff.quantile=0.01){
+em.gauss <- function(y, mu, sigma2, pi, alpha, beta, 
+                     epsilon=0.000001,ecoff.quantile=0.01, max.iter = 1000){
 
   # y - data numeric vector with observation per bin,
   # n0  - first value of y must be n0
@@ -280,7 +281,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001,ecoff.quan
 
   J <- length(y)
   iter <- 0
-  while(delta > epsilon & iter < 650){
+  while(delta > epsilon & iter < max.iter){
  # for(i in 1:10){
     iter <- iter +1
     #E- Step
@@ -440,9 +441,11 @@ em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon
      bic.vec[i] <- bic
      
   }
+  goodness$AIC <- aic.vec
+  goodness$BIC <- bic.vec
   
-  goodness[[k+1]] <- aic.vec
-  goodness[[k+2]] <- bic.vec
+ # goodness[[k+1]] <- aic.vec
+ # goodness[[k+2]] <- bic.vec
   
   return(goodness)
 
