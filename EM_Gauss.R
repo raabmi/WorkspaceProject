@@ -203,7 +203,7 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 ########################
 ## EM - Algorithm ######
 ########################
-em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
+em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001,ecoff.quantile=0.01){
 
   # y - data numeric vector with observation per bin,
   # n0  - first value of y must be n0
@@ -383,16 +383,17 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     
 
   }
-  
-  print("iter")
-  print(iter)
-  loglik.test <- loglik2(y = y,
+  ecoff <- ecoff(mu_est=mu_est, pi_est = pi_est, 
+                 sigma2_est = sigma2_est, quantile = ecoff.quantile)
+
+loglik.test <- loglik2(y = y,
                          mu = mu_est,
                          sigma2 = sigma2_est,
                          pi = pi_est,
                          ab_bin = ab_bin)
+
   
-  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik.test))
+  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik.test, ecoff=ecoff))
 
 }
 
@@ -468,3 +469,27 @@ BIC.gauss <- function(lik, par, n){
   return(bic)
 }
 
+
+ecoff <- function(mu_est, pi_est, sigma2_est,quantile=0.01) {
+  for(i in length(mu_est):1) {
+    val <- pi_est[i]
+    if(val > 0.3) break
+  }
+  return(qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
+}
+
+
+plot.fct <- function(y, mu_est, sigma2_est, pi_est, ecoff) {
+  y.data <- data.frame(name = 1:length(y)+5, y)
+  lim=max(hist(y,breaks = 30, freq = F, plot = F)$density)
+  hist(rep(y.data[,1],y.data[,2]),freq = F , col = "deepskyblue", xlab="mm",
+       main = paste("Gaussian Mixtures with ", length(mu_est), " components"),breaks=30,
+       xlim=c(5,max(y.data[1])))
+  
+  curve(plot.dens(x, 
+                  mu_est, 
+                  sigma2_est, 
+                  pi_est), from= 6, to = 50, add = T, ylab = 'density')
+  abline(v=ecoff, col="red", lwd=3,lty=2)
+  legend("topleft",paste("CUTOFF = ", round(ecoff,2), " mm"), col="red", cex=1, lwd=2, lty=2)
+}
