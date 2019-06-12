@@ -23,8 +23,7 @@ pjk <- function(a, b, mu, sigma2){
                       .Machine$double.eps,
                       pjk_est)
     
-    print("pjk_est korrected")
-    print(pjk_est)
+ 
     return(pjk_est)
 }
 
@@ -37,17 +36,14 @@ pj <- function(p0, pi, a, b, mu , sigma2, get.p0= FALSE){
   # mu numeric vector mean of a normal
   # sigma2 numeric vector variance of a normal
 
-  print("Calc Buffer")
   buffer <- NULL
   for (i in length(mu)){
     buffer <- c(buffer,
                 pi[i]*pjk(a, b, mu[i], sigma2[i]))
-    print(pi[i])
-    print(pjk(a, b, mu[i], sigma2[i]))
+   
 
   }
-  print("butter")
-  print(buffer)
+
   if(get.p0){
     return(sum(buffer))
   }else{
@@ -84,27 +80,16 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   }
 
   log_pjk <- log(pjk)
-  print("log_pjk vor apply:")
-  print(log(pjk))
+
   log_pjk <- apply(log_pjk, 2, function(x){
     ifelse(x == -Inf, log(.Machine$double.eps), x)
   })
-  print("log_pjk nach apply:")
-  print(log(pjk))
+
   
 
   term3 <- sum(njk * log_pjk) #instead of sum sum
   
-   print("Funktion loglik")
-   print(term1)
-  # print(n0)
-  # print(p0)
-   print(term2)
-  # print(njk)
-  # print(pi)
-  # print(log(pi))
-   print(term3)
-  # print(log_pjk)
+
   
 
   #Term 2
@@ -113,6 +98,20 @@ loglik <- function(n0, p0, J, K, pi, pjk, njk, mu, sigma2){
   return(loglik_value)
 }
 
+loglik2 <- function(y, pi, mu, sigma2, ab_bin){
+  ll <- numeric(length(y))
+  for(i in 2: length(y)){
+    ll[i] <- y[i] * log(sum(
+      sapply(1:length(mu), function(x){
+      pi[x]*(pjk(a = ab_bin$a[i],
+                 b = ab_bin$b[i],
+                 mu = mu[x],
+                 sigma2 = sigma2[x]))
+    })))
+  }
+  
+  return(sum(ll))
+}
 #Loglikelihood penalized
 loglik.pen <- function(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta){
   # n0 - numeric value number of resistent observations
@@ -143,7 +142,6 @@ pi <- function(N, n0, njk){
   # numeric vector with pi for each component k
   
   if(is.null(dim(njk))){ # K = 1
-    print("bin Vector")
     return(sum(njk)/(N-n0))
   }else{
     return(colSums(njk)/(N-n0))
@@ -196,9 +194,7 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 
     num <- nj* pi[k]* pjk(a, b, mu[k], sigma2[k])
   }
-  print("Calc NJk")
-  print(num)
-  print(denum)
+
   return(num / sum(denum))
 
 }
@@ -221,9 +217,10 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   # list(estimated mu, estimated sigma2, liklihood value)
 
 
-  #GRUEN: Use stop instead warning
 #  if(class(y) != "numeric") stop("y is not a numeric vector")
   if(any(y<0)) stop("only positiv y values are allowed")
+  
+  if(sum(y[-1])<10) stop("EM-Algorithm needs at least 10 observations")
 
   if(class(mu) != "numeric") stop("mu is not a numeric vector")
   if(any(mu<0)) stop("only positiv mu values are allowed")
@@ -282,12 +279,10 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
   ab_bin <- ab_bin[!is0, ]
 
   J <- length(y)
-
- # while(delta > epsilon){
-  for(i in 1:10){
-    print("I:")
-    print(i)
-  
+  iter <- 0
+  while(delta > epsilon & iter < 650){
+ # for(i in 1:10){
+    iter <- iter +1
     #E- Step
     #Calculate Expected values in bin j under distribution k
     njk_exp <- matrix(0, nrow = J, ncol= K)
@@ -303,9 +298,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
       })
     }
     
-    print("All NJK Matrix")
-    print(njk_exp)
-  
+
 
 
 
@@ -334,8 +327,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
 
     # Optimize Likelihood (Estimate sigma, mu with optim)
     # Use as start values estimates from before
-    print("pi_est")
-    print(pi_est)
+
     p0 <- pj(p0 = -1,
              pi = pi_est,
              a = 0,
@@ -343,7 +335,6 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
              mu = mu_est ,
              sigma2 = sigma2_est,
              get.p0= TRUE)
-    print(p0)
     if(p0 == 0){
       p0 <- .Machine$double.eps
     }
@@ -381,9 +372,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
                           njk = njk_exp,
                           mu = mu_est,
                           sigma2 = sigma2_est)
-    print("Loglik")
-    print(loglik_prev)
-    print(loglik_curr)
+
     
     if(loglik_prev == -Inf & loglik_curr == -Inf){
       delta <- 0
@@ -392,13 +381,18 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001){
     }
     loglik_prev <- loglik_curr
     
-  
-    print(delta)
- 
-
 
   }
-  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik_curr))
+  
+  print("iter")
+  print(iter)
+  loglik.test <- loglik2(y = y,
+                         mu = mu_est,
+                         sigma2 = sigma2_est,
+                         pi = pi_est,
+                         ab_bin = ab_bin)
+  
+  return(list(mu= mu_est, sigma2 =sigma2_est, pi = pi_est, loglik = loglik.test))
 
 }
 
@@ -423,6 +417,8 @@ em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon
   bic.vec <- vector("numeric",length = k)
 
   for(i in 1:k){
+    
+    print(k)
     
     y.df <- data.frame(bin = 6:50, nrObs = y)
     
@@ -456,7 +452,7 @@ AIC.gauss <- function(lik, par){
   #lik - numeric value describing the likelihood
   #par - number of groups on the basis of normal distribution
   
-  aic <- -2*lik+2*par 
+  aic <- -2*lik+2*(3* par -1) 
   
   return(aic)
 }
@@ -467,7 +463,7 @@ BIC.gauss <- function(lik, par, n){
   #par - number of groups on the basis of normal distribution
   #n - number of observations
   
-  bic <- -2*lik + 2* 2* par * log(n)
+  bic <- -2*lik + 2* (3* par -1) * log(n)
   
   return(bic)
 }
