@@ -483,7 +483,14 @@ ecoff <- function(mu_est, pi_est, sigma2_est,quantile=0.01) {
   return(qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
 }
 
-
+plot.dens <- function(x, mu, sigma2, pi){
+  dens <- 0
+  
+  for(i in 1:length(mu)){
+    dens <- dens + pi[i]* dnorm(x, mean = mu[i], sd = sqrt(sigma2[i]))
+  }
+  return(dens)
+}
 plot.fct <- function(y, mu_est, sigma2_est, pi_est, ecoff) {
   y.data <- data.frame(name = 1:length(y)+5, y)
   lim=max(hist(y,breaks = 30, freq = F, plot = F)$density)
