@@ -420,8 +420,7 @@ em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon
 
   for(i in 1:k){
     
-    print(k)
-    
+
     y.df <- data.frame(bin = 6:50, nrObs = y)
     
     m <- createCluster(y = y.df , k = i , method = method)
@@ -479,7 +478,6 @@ ecoff <- function(mu_est, pi_est, sigma2_est,quantile=0.01) {
     val <- val + pi_est[i]
     if(val > 0.3) break
   }
-  print(i)
   return(qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
 }
 

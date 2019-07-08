@@ -1,25 +1,23 @@
 \name{EM_Gauss}
-\alias{em.gauss}
+\alias{em.gauss.opti.groups}
 \title{EM Algorithm with Normals}
 
 
 \description{
-The function fits a mixed distribution of k normals on the binned input data y by using the EM Algorithm.
+This function calculates for different number of components the parameters, likelihood, AIC, BIC and coresponing ECOFF.
 }
 
 \usage{
-em.gauss(y, mu, sigma2, pi, alpha, beta, epsilon=0.000001, ecoff.quantile=0.01, max.iter = 1000)
+em.gauss.opti.groups(y, k, alpha, beta, method = "quantile", epsilon=0.000001){
+
 }
 \arguments{
 \item{y}{ a numeric vector First element: number of resistent observations}
-\item{mu}{a numeric vector of startvalues for the means mu}
-\item{sigma2} {a numeric vector of startvalues for the variances sigma2}
-\item{pi} {a numeric vector of startvalues for the mixing proportions pi }
+\item{k}{a numeric value it indicates the maximum number of components}
 \item{alpha} {a numeric number for the alpha of the inverse gamma distribution for penalization }
 \item{beta} {a numeric number for the beta of the inverse gamma distribution for penalization }
+\item{method} {defines the method how the startvalues for the EM Algorithm are calculated. }
 \item{epsilon} {a numeric number of the stopping critera }
-\item{ecoff.quantile} {a numeric number, which defines the quantile of the rightest distribution }
-\item{max.iter} {a numeric number, maximum number of iterations of the EM-Algorithm }
 }
 
 \value{

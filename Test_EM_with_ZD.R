@@ -19,7 +19,6 @@ head(ZD)
 
 zd <- as.numeric(ZD[6, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
-zd.data
 
 #View Data
 #bp.data <- c(rep(0, 3), zd.data$nrObs/sum(zd.data$nrObs))
