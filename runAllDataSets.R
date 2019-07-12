@@ -11,8 +11,11 @@ ZD <- read.csv("C:/Users/Michaela/Dropbox/Project SS2019/Implementierung/Daten/Z
 ZD <- ZD[!is.na(ZD$ECOFF), ] #Delete with Ecoff = NA
 
 k <- 5
+
 ecoffs <-data.frame(ecoff.zd = ZD$ECOFF, ecoff.calc = 0, num.comp = 0, num.obs = 0)
-for(i in 185:368){
+ecoffs <- read.csv("ecoffs_results.csv")
+str(ecoffs)
+for(i in 240:368){
   print(i)
   zd <- as.numeric(ZD[i, 4:48])
   y <- as.numeric(zd)
@@ -32,6 +35,8 @@ for(i in 185:368){
   
 }
 
-
-plot(ecoffs$ecoff.zd[1:150], ecoffs$ecoff.calc[1:150])
+#Fehler bei: 74, 208, 239
+plot(ecoffs$ecoff.zd, ecoffs$ecoff.calc)
 lines(c(0,50), c(0,50), col= 2, lty =2)
+
+boxplot(ecoffs$num.obs ~ ecoffs$num.comp)
