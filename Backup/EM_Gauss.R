@@ -16,8 +16,8 @@ pjk <- function(a, b, mu, sigma2){
   #OUTPUT
   # number - Area unter the density
 
-    pjk_est <- stats::pnorm(b, mu, sqrt(sigma2)) -
-      stats::pnorm(a, mu, sqrt(sigma2))
+    pjk_est <- pnorm(b, mu, sqrt(sigma2)) -
+      pnorm(a, mu, sqrt(sigma2))
 
     pjk_est <- ifelse(pjk_est == 0,
                       .Machine$double.eps,
@@ -127,7 +127,7 @@ loglik.pen <- function(n0, p0, J, K, pi, pjk, njk,mu, sigma2, alpha, beta){
   #likelihood value penalized (loglik)
 
 
-  pen <- sum(invgamma::pinvgamma(sigma2, alpha, beta, log.p = T))
+  pen <- sum(invgamma::pinvgamma(sigma, alpha, beta, log.p = T))
   loglikpen <- loglik(n0, p0, J, K, pi, pjk, njk, mu, sigma2) - pen
 
   return(loglikpen)
@@ -203,47 +203,6 @@ njk <- function(nj, pi, mu, sigma2, a, b,  k){
 ########################
 ## EM - Algorithm ######
 ########################
-#' @title Estimating Ecoff by mixing Gaussians
-#' @description
-#' This function tries to find the Ecoff value of the input data, by aproximating the distribution
-#' by an mixing distribution of Gaussian distributions
-#'
-#' @param y A data vector with observed values per bin.
-#' @param mu A vector with startvalues for mu
-#' @param sigma2 A vector with startvalues for the variance
-#' @param pi A vector with startvalues for the mixing proportions
-#' @param alpha Shape parameter of inverse gamma distribution
-#' @param beta Scale parameter of inverse gamma distribution
-#' @param epsilon Convergence criterium
-#' @param ecoff.quantile Quantil which defines the ECOFF
-#' @param max.iter Maximum number of iterations
-#'
-#' @return A list with components mu, var, pi, loglik and ecoff
-#' @details
-#' The data vector y is defined as one row of the EUCAST Data of the Zone Diameter Data.
-#' The first value of y has to be the number of resistant observations.
-#' Then the following elements are the number of observations in bin 6 to 6+length(y)-1.
-#' A bin x includes all observations which had values form x-0.5 to x+0.5.
-#'
-#' The function uses the EM Algorithm to fit a mixing distribution of Normals on the data.
-#' Based on the result of the converged mixing distribution the algorithm evaluates the ECOFF value.
-#' The ECOFF value is defined by default as the 0.01 quantile of the rightest distribution.
-#' The rightest density is defined as the distribution, where the sum of the pis firstly is greater than 0.3.
-#' Therefore, the distribution get ordered by their mean in ascending order and then the pis are commulated of the right.
-#'
-#' Furthermore,  to avoid, that one of the sigma2 converges to 0, the likelihood get penalized in dependence of sigma2.
-#' In detail, the penalization term follows a inverse gamma distribution with parameter alpha and beta.
-#' @examples
-#' y <- c(2, 4, 5,6,5,2,2, 1, 1, 2,  2, 1,6,7,8,7,6, 5, 2,1)
-#' em.gauss(y = y,
-#'          mu = c(8.36, 17.28),
-#'          sigma2 = c(1.67,  8.4),
-#'          pi = c(1/2, 1/2),
-#'          alpha = 1,
-#'          beta = 3,
-#'          epsilon = 0.0001)
-
-#' @export
 em.gauss <- function(y, mu, sigma2, pi, alpha, beta,
                      epsilon=0.000001,ecoff.quantile=0.01, max.iter = 1000){
 
@@ -384,7 +343,7 @@ em.gauss <- function(y, mu, sigma2, pi, alpha, beta,
     for(k in 1:K){
       musigma <- c(mu_est[k], sigma2_est[k])
 
-      est1 <- stats::optim(par = musigma,
+      est1 <- optim(par = musigma,
                     fn = optim.loglik.pen,
                     method="L-BFGS-B",
                     lower= c(-Inf, 0.1),
@@ -441,29 +400,6 @@ loglik.test <- loglik2(y = y,
 
 
 
-#' @title Finding the optimal number of components
-#' @description
-#' This function provides the user information of the fitted distributions in order to choose the optimal number of components.
-#'
-#' @param y A data vector with observed values per bin.
-#' @param k maximum numbers of components
-#' @param alpha inverse gamma shape parameter
-#' @param beta inverse gamma rate parameter
-#' @param method method how startvalues should be evaluated. For more details see function CreateCluster
-#' @param epsilon stopping criteria
-#'
-#' @return A list with  mu, var, pi, loglik, ecoff, AIC, BIC for each fitted distribution
-#' @details
-#' This function fits for each number of component (1:k) a mixing distribution of Gaussians by using
-#' the function em.gauss. Furthermore, the fit of the distributions is meassured by the two information criteria AIC and BIC.
-#'
-#' @examples
-#' y <- c(2, 4, 5,6,5,2,2, 1, 1, 2,  2, 1,6,7,8,7,6, 5, 2,1)
-#' em.gauss.opti.groups(y,
-#'                      k= 2,
-#'                      alpha = 1,
-#'                      beta = 2)
-#' @export
 em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon=0.000001){
 
   # y - data numeric vector with observation per bin,
@@ -474,29 +410,17 @@ em.gauss.opti.groups <- function(y, k, alpha, beta, method = "quantile", epsilon
   # list(estimated mu, estimated sigma2, likelihood value)
   # method quantiles and binbased
 
-  if(any(y<0)) stop("only positiv y values are allowed")
-
-  if(class(k) != "numeric") stop("k is not a numeric vector")
-  if(any(k<0)) stop("only positiv k values are allowed")
-
-  if(class(alpha) != "numeric" || length(alpha) != 1 || any(alpha<0)){
-    stop("alpha is not a positiv numeric value")
-  }
-
-  if(class(beta) != "numeric" || length(beta) != 1 || any(beta<0)){
-    stop("beta is not a positiv numeric value")
-  }
 
   m <- matrix()
   goodness <- list()
 
-  aic.vec <- vector("numeric",length = k)
+  aic.vec <- numeric(3)
   bic.vec <- vector("numeric",length = k)
 
   for(i in 1:k){
 
 
-    y.df <- data.frame(bin = (1:length(y)+6), nrObs = y)
+    y.df <- data.frame(bin = 6:50, nrObs = y)
 
     m <- createCluster(y = y.df , k = i , method = method)
 
@@ -553,61 +477,28 @@ ecoff <- function(mu_est, pi_est, sigma2_est,quantile=0.01) {
     val <- val + pi_est[i]
     if(val > 0.3) break
   }
-  return(stats::qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
+  return(qnorm(quantile,mean=mu_est[i], sd = sqrt(sigma2_est[i])))
 }
 
 plot.dens <- function(x, mu, sigma2, pi){
   dens <- 0
 
   for(i in 1:length(mu)){
-    dens <- dens + pi[i]* stats::dnorm(x, mean = mu[i], sd = sqrt(sigma2[i]))
+    dens <- dens + pi[i]* dnorm(x, mean = mu[i], sd = sqrt(sigma2[i]))
   }
   return(dens)
 }
-
-
-#' @title Plotting the fitted distribution with ECOFF
-#' @description This function plotts a histogram of the data and the fitted mixing distribubion of normals.
-#' Furthermore, the Ecoff value is plotted by a line.
-#'
-#' @param y A data vector with observed values per bin
-#' @param mu A vector with values for mu
-#' @param sigma2 A vector with values for the variance
-#' @param pi A vector with values for the mixing proportions
-#' @param ecoff a numeric value of the ECOFF value
-#'
-#' @return a plot of the fitted distribution
-#'
-#' @export
-plot_fct <- function(y, mu, sigma2, pi, ecoff) {
-  if(any(y<0)) stop("only positiv y values are allowed")
-
-  if(class(mu) != "numeric") stop("mu is not a numeric vector")
-  if(any(mu<0)) stop("only positiv mu values are allowed")
-
-  if(class(sigma2) != "numeric") stop("sigma2 is not a numeric vector")
-  if(any(sigma2<0)) stop("only positiv sigma2 values are allowed")
-
-  if(class(pi) != "numeric") stop("pi is not a numeric vector")
-  if(any(pi<0)) stop("only positiv pi values are allowed")
-
-  if(length(mu) != length(sigma2) || length(sigma2) != length(pi)){
-    stop("mu and sigma2 or sigma2 and pi have not the same length")
-  }
-
-  if(class(ecoff) != "numeric") stop("ecoff is not a numeric value")
-
-
+plot.fct <- function(y, mu_est, sigma2_est, pi_est, ecoff) {
   y.data <- data.frame(name = 1:length(y)+5, y)
-  lim=max(graphics::hist(y,breaks = 30, freq = F, plot = F)$density)
-  graphics::hist(rep(y.data[,1],y.data[,2]),freq = F , col = "deepskyblue", xlab="mm",
-       main = paste("Gaussian Mixtures with ", length(mu), " components"),breaks=30,
+  lim=max(hist(y,breaks = 30, freq = F, plot = F)$density)
+  hist(rep(y.data[,1],y.data[,2]),freq = F , col = "deepskyblue", xlab="mm",
+       main = paste("Gaussian Mixtures with ", length(mu_est), " components"),breaks=30,
        xlim=c(5,max(y.data[1])))
 
-  graphics::curve(plot.dens(x,
-                  mu,
-                  sigma2,
-                  pi), from= 6, to = 50, add = T, ylab = 'density')
-  graphics::abline(v=ecoff, col="red", lwd=3,lty=2)
+  curve(plot.dens(x,
+                  mu_est,
+                  sigma2_est,
+                  pi_est), from= 6, to = 50, add = T, ylab = 'density')
+  abline(v=ecoff, col="red", lwd=3,lty=2)
 #  legend("topleft",paste("CUTOFF = ", round(ecoff,2), " mm"), col="red", cex=1, lwd=2, lty=2)
 }

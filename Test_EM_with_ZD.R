@@ -17,17 +17,17 @@ head(ZD)
 # 1091 --> work with k= 2#
 # 702
 
-zd <- as.numeric(ZD[6, 4:48])
+zd <- as.numeric(ZD[1091, 4:48])
 zd.data <- data.frame(bin = 6:50, nrObs = zd)
 
 #View Data
 #bp.data <- c(rep(0, 3), zd.data$nrObs/sum(zd.data$nrObs))
-barplot(zd.data$nrObs, names.arg = c(1:3,zd.data$bin))
+barplot(zd.data$nrObs, names.arg = c(zd.data$bin))
 hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 30)
 
 #Create Clusters
 k <- 2
-start.musigma2 <- createCluster(as.matrix(zd.data), k, 
+start.musigma2 <- createCluster(as.matrix(zd.data), k,
                                 method = 'quantile')
 start.musigma2
 
@@ -49,11 +49,11 @@ em.result
 
 #Plot Results
 plot.fct(y = y,
-         mu_est = em.result$mu , 
-         sigma2_est = em.result$sigma2, 
-         pi_est = em.result$pi, 
+         mu_est = em.result$mu ,
+         sigma2_est = em.result$sigma2,
+         pi_est = em.result$pi,
          ecoff = em.result$ecoff)
-  
+
 sum(em.result$pi)
 
 #curve(dinvgamma(x, shape = 3, rate = 0.5), from = 0, to =5)
@@ -62,9 +62,9 @@ sum(em.result$pi)
 
 hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks = 35,
      ylim = c(0, 0.5))
-curve(plot.dens(x, 
-                em.result$mu, 
-                em.result$sigma2, 
+curve(plot.dens(x,
+                em.result$mu,
+                em.result$sigma2,
                 em.result$pi),
       from= 1, to = 50, add = T, col=2, ylab = 'density')
 
@@ -72,15 +72,15 @@ curve(plot.dens(x,
 #Find optimum
 source("EM_Gauss.R")
 
-k <- 6
+k <- 5
 y <- as.numeric(zd)
 sink("sink-examp.txt", append = FALSE)
 
-res <-em.gauss.opti.groups(y = y, 
-                     k = k, 
-                     alpha = 3, 
-                     beta= 1, 
-                     method = "quantile", 
+res <-em.gauss.opti.groups(y = y,
+                     k = k,
+                     alpha = 3,
+                     beta= 1,
+                     method = "quantile",
                      epsilon=0.0001)
 sink()
 res
@@ -90,14 +90,14 @@ hist(rep(zd.data$bin, zd.data$nrObs),freq = F, breaks= 30,
      xlab = 'mm')
 for(i in 1: k){
   em.result <- res[[i]]
-  
-  curve(plot.dens(x, 
-                  em.result$mu, 
-                  em.result$sigma2, 
+
+  curve(plot.dens(x,
+                  em.result$mu,
+                  em.result$sigma2,
                   em.result$pi),
         from= 6, to = 50, add = T, ylab = 'density',
         col= i)
-  
+
 }
 legend('topleft', legend = 1:k, lty= 1, col= 1:k,
        ncol = 6)
@@ -107,6 +107,6 @@ res
 plot(res$AIC, ylab = 'AIC')
 abline(v=which.min(res$AIC), lty= 2, col=2)
 #BIC
-plot(res$BIC, ylab = 'BIC', 
+plot(res$BIC, ylab = 'BIC',
      xlab = 'Number of components')
 abline(v=which.min(res$BIC), lty= 2, col=2)

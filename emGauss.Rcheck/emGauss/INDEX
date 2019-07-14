@@ -1,0 +1,5 @@
+ZD                      Snapshot of Zone Data from EUCAST
+createCluster           Create Cluster blal
+em.gauss                Estimating Ecoff by mixing Gaussians
+em.gauss.opti.groups    Finding the optimal number of components
+plot_fct                Plotting the fitted distribution with ECOFF
